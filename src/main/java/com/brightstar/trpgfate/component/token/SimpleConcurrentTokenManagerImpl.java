@@ -93,6 +93,5 @@ public class SimpleConcurrentTokenManagerImpl implements TokenManager {
     @Scheduled(fixedDelay = 180000L)
     private void cleanupMap() {
         tokenMap.entrySet().removeIf(entry -> entry.getValue().isExpired());
-        System.out.println("scheduled");
     }
 }

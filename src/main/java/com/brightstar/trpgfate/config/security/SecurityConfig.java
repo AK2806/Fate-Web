@@ -21,7 +21,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
-                .csrf().disable()
+                .cors().and().csrf().disable()
                 .authorizeRequests()
                 .regexMatchers("/user/.+").authenticated()
                 .regexMatchers("/admin/.+").hasAuthority("ADMIN")

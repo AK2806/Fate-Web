@@ -1,6 +1,6 @@
 package com.brightstar.trpgfate.service.impl;
 
-import com.brightstar.trpgfate.service.EmailSendingService;
+import com.brightstar.trpgfate.service.EmailSendService;
 import org.springframework.stereotype.Service;
 
 import javax.mail.*;
@@ -10,7 +10,7 @@ import java.util.Date;
 import java.util.Properties;
 
 @Service
-public final class EmailSendingServiceImpl implements EmailSendingService {
+public final class EmailSendServiceImpl implements EmailSendService {
     private static final String QQ_MAIL_ADDRESS = "642207429@qq.com";
     private static final String MAIL_AUTHORIZATION = "roiuqwjheotbbejg";
     private static final Properties PROPS = new Properties();

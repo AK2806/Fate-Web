@@ -60,7 +60,7 @@ public class CaptchaServiceImpl implements CaptchaService {
             specCaptcha.setCharType(com.wf.captcha.Captcha.TYPE_NUM_AND_UPPER);
             specCaptcha.out(pngOutputStream);
             tokenContent[0] = Base64.getEncoder().encodeToString(pngOutputStream.toByteArray());
-            tokenContent[1] = specCaptcha.text().toUpperCase(Locale.ROOT);
+            tokenContent[1] = specCaptcha.text().toUpperCase(Locale.CHINA);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -78,7 +78,7 @@ public class CaptchaServiceImpl implements CaptchaService {
         Token token = tokenManager.getToken(captchaId, false);
         if (token == null) throw new CaptchaExpiredException();
         String[] content = (String[]) token.getContent();
-        text = text.toUpperCase(Locale.ROOT);
+        text = text.toUpperCase(Locale.CHINA);
         boolean result = text.equals(content[1]);
         token.expire();
         return result;

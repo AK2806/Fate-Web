@@ -1,4 +1,4 @@
-package com.brightstar.trpgfate.rest_controller.vo;
+package com.brightstar.trpgfate.rest_controller.vo.response;
 
 public final class CaptchaPostResp {
     private String token;

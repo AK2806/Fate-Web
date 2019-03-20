@@ -1,6 +1,6 @@
 package com.brightstar.trpgfate.rest_controller;
 
-import com.brightstar.trpgfate.rest_controller.vo.CaptchaPostResp;
+import com.brightstar.trpgfate.rest_controller.vo.response.CaptchaPostResp;
 import com.brightstar.trpgfate.service.Captcha;
 import com.brightstar.trpgfate.service.CaptchaService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +15,7 @@ public class CaptchaGenerator {
     @Autowired
     private CaptchaService captchaService;
 
-    @PostMapping()
+    @PostMapping
     public @ResponseBody
     CaptchaPostResp createCaptcha() {
         Captcha captcha = captchaService.generateCaptcha();
