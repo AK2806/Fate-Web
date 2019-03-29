@@ -38,9 +38,9 @@
                                 </tr>
                                 <tr>
                                     <td>
-                                        <div>
-                                            <a th:href="'https://www.ccxxgames.cn/trpgfate/reset-password.html?token=' + ${token}" th:text="'https://www.ccxxgames.cn/trpgfate/reset-password.html?token=' + ${token}" style="font-size: 12px; color: #f47640;"></a>
-                                            <p><a th:href="'http://localhost:9200/reset-password.html?token=' + ${token}" th:text="'http://localhost:9200/reset-password.html?token=' + ${token}"></a></p>
+                                        <div style="width: 460px;">
+                                            <a th:href="'https://www.ccxxgames.cn/trpgfate/reset-password.html?pid='+${pid}+'&token='+${tokenBs64}" th:text="'https://www.ccxxgames.cn/trpgfate/reset-password.html?pid='+${pid}+'&token='+${tokenBs64}" style="font-size: 12px; color: #f47640;"></a>
+                                            <p><a th:href="'http://localhost:9200/reset-password.html?pid='+${pid}+'&token='+${tokenBs64}" th:text="'http://localhost:9200/reset-password.html?pid='+${pid}+'&token='+${tokenBs64}"></a></p>
                                         </div>
                                     </td>
                                 </tr>

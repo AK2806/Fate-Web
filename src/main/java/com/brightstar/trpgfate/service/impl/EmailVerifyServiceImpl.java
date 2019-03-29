@@ -1,10 +1,11 @@
 package com.brightstar.trpgfate.service.impl;
 
-import com.brightstar.trpgfate.component.token.Token;
-import com.brightstar.trpgfate.component.token.TokenManager;
-import com.brightstar.trpgfate.service.EmailSendService;
+import com.brightstar.trpgfate.component.ioc.token.Token;
+import com.brightstar.trpgfate.component.ioc.token.TokenManager;
+import com.brightstar.trpgfate.component.ioc.email.EmailSender;
 import com.brightstar.trpgfate.service.EmailVerifyService;
 import com.brightstar.trpgfate.service.exception.EmailVerifyExpiredException;
+import com.brightstar.trpgfate.service.exception.MessageFailedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.codec.Hex;
 import org.springframework.stereotype.Service;
@@ -22,14 +23,14 @@ public class EmailVerifyServiceImpl implements EmailVerifyService {
     @Autowired
     private ITemplateEngine templateEngine;
     @Autowired
-    private EmailSendService emailSendService;
+    private EmailSender emailSender;
     @Autowired
     private TokenManager tokenManager;
 
     private SecureRandom secureRandom = new SecureRandom();
 
     @Override
-    public void generateEmail(String emailAddr) throws MessagingException {
+    public void generateEmail(String emailAddr) throws MessageFailedException {
         Token token = tokenManager.getToken(emailAddr);
         token.refresh(Calendar.MINUTE, 30);
         byte[] verifyCode = new byte[3];
@@ -38,11 +39,15 @@ public class EmailVerifyServiceImpl implements EmailVerifyService {
         Context ctx = new Context(Locale.CHINA);
         ctx.setVariable("verifyCode", String.valueOf(Hex.encode(verifyCode)).toUpperCase(Locale.CHINA));
         String htmlContent = templateEngine.process("verification_email.html", ctx);
-        emailSendService.sendHtmlMail(
-                emailAddr,
-                "上海璀璨星屑网络科技工作室",
-                "《命运™》邮箱验证",
-                htmlContent);
+        try {
+            emailSender.sendHtmlMail(
+                    emailAddr,
+                    "上海璀璨星屑网络科技工作室",
+                    "《命运™》邮箱验证",
+                    htmlContent);
+        } catch (MessagingException e) {
+            throw new MessageFailedException(e);
+        }
     }
 
     @Override

@@ -1,18 +1,17 @@
 package com.brightstar.trpgfate.service;
 
+import com.brightstar.trpgfate.service.dto.Account;
 import com.brightstar.trpgfate.service.dto.User;
-import com.brightstar.trpgfate.service.exception.EmailExistsException;
-import com.brightstar.trpgfate.service.exception.EmailDoesntExistException;
-
-import javax.servlet.http.HttpSession;
+import com.brightstar.trpgfate.service.exception.UserConflictException;
+import com.brightstar.trpgfate.service.exception.UserDoesntExistException;
 
 public interface UserService {
-    int ROLE_USER = 0;
-    int ROLE_ADMIN = 1;
+    User getUser(int id) throws UserDoesntExistException;
+    User getUser(String email) throws UserDoesntExistException;
 
-    boolean authenticate(User user);
-    boolean authenticate(User user, HttpSession session, int durationInSeconds);
-    void register(User user, int role) throws EmailExistsException;
-    void modifyPassword(User user) throws EmailDoesntExistException;
-    boolean userExists(String email);
+    void registerWithEmail(String email, String password, int role) throws UserConflictException;
+    void modifyPassword(User user, String newPassword);
+
+    Account getAccountInfo(User user);
+    void updateAccountInfo(User user, Account account);
 }

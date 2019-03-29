@@ -18,14 +18,34 @@ public final class MariadbUserDetailServiceImpl implements UserDetailsService {
     @Autowired
     private UserDAO userDAO;
 
+    private String authorityMapping(int role) {
+        switch (role) {
+            case com.brightstar.trpgfate.service.dto.User.ROLE_USER:
+                return "USER";
+            case com.brightstar.trpgfate.service.dto.User.ROLE_ADMIN:
+                return "ADMIN";
+            case com.brightstar.trpgfate.service.dto.User.ROLE_SUPERADMIN:
+                return "SUPER_ADMIN";
+            default:
+                return "USER";
+        }
+    }
+
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userDAO.findByEmail(username);
+        int id;
+        try {
+            id = Integer.parseInt(username);
+        } catch (Exception e) {
+            throw new UsernameNotFoundException("Username format is incorrect", e);
+        }
+        User user = userDAO.getById(id);
         if (user == null) throw new UsernameNotFoundException("User not found");
 
         return new org.springframework.security.core.userdetails.User(
                 username,
                 String.valueOf(Hex.encode(user.getPasswdSha256Salted())),
-                Collections.singletonList(new SimpleGrantedAuthority(user.getRole() == UserService.ROLE_ADMIN ? "ADMIN" : "USER")));
+                user.isActive(), true, true, true,
+                Collections.singletonList(new SimpleGrantedAuthority(authorityMapping(user.getRole()))));
     }
 }

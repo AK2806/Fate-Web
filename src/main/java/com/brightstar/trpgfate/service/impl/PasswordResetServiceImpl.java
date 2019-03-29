@@ -1,20 +1,22 @@
 package com.brightstar.trpgfate.service.impl;
 
-import com.brightstar.trpgfate.component.token.Token;
-import com.brightstar.trpgfate.component.token.TokenManager;
-import com.brightstar.trpgfate.service.EmailSendService;
+import com.brightstar.trpgfate.component.ioc.token.Token;
+import com.brightstar.trpgfate.component.ioc.token.TokenManager;
+import com.brightstar.trpgfate.component.ioc.email.EmailSender;
 import com.brightstar.trpgfate.service.PasswordResetService;
 import com.brightstar.trpgfate.service.UserService;
 import com.brightstar.trpgfate.service.dto.User;
-import com.brightstar.trpgfate.service.exception.EmailDoesntExistException;
+import com.brightstar.trpgfate.service.exception.MessageFailedException;
+import com.brightstar.trpgfate.service.exception.UserDoesntExistException;
 import com.brightstar.trpgfate.service.exception.ResetterExpiredException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.codec.Hex;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.ITemplateEngine;
 import org.thymeleaf.context.Context;
 
 import javax.mail.MessagingException;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.Calendar;
 import java.util.Locale;
 
@@ -25,40 +27,56 @@ public class PasswordResetServiceImpl implements PasswordResetService {
     @Autowired
     private UserService userService;
     @Autowired
-    private EmailSendService emailSendService;
+    private EmailSender emailSender;
     @Autowired
     private ITemplateEngine templateEngine;
 
-    @Override
-    public void generateResetter(String emailAddr) throws MessagingException, EmailDoesntExistException {
-        if (!userService.userExists(emailAddr)) throw new EmailDoesntExistException();
+    public String generateResetterByEmail(User user) throws MessagingException {
+        int id = user.getId();
+        String emailAddr = user.getEmail();
         Token token = tokenManager.generateToken();
         token.refresh(Calendar.MINUTE, 10);
-        token.setContent(emailAddr);
+        token.setContent(id);
         Context ctx = new Context(Locale.CHINA);
         ctx.setVariable("username", emailAddr);
-        ctx.setVariable("token", token.getId());
+        ctx.setVariable("pid", id);
+        ctx.setVariable("tokenBs64", Base64.getEncoder().encodeToString(token.getId().getBytes(StandardCharsets.UTF_8)));
         String htmlContent = templateEngine.process("passwd_reset_email.html", ctx);
-        emailSendService.sendHtmlMail(
+        emailSender.sendHtmlMail(
                 emailAddr,
                 "上海璀璨星屑网络科技工作室",
                 "《命运™》账户密码重置",
                 htmlContent);
+        return token.getId();
+    }
+
+    public String generateResetterByPhoneMail(User user) {
+        throw new IllegalArgumentException("method phone mail is not implemented");
     }
 
     @Override
-    public void resetPassword(String tokenId, String newPassword) throws ResetterExpiredException {
+    public String generateResetter(User user, int method) throws MessageFailedException {
+        switch (method) {
+            case METHOD_E_MAIL:
+                try {
+                    return generateResetterByEmail(user);
+                } catch (MessagingException e) {
+                    throw new MessageFailedException(e);
+                }
+            case METHOD_PHONE_MAIL:
+                return generateResetterByPhoneMail(user);
+            default:
+                throw new IllegalArgumentException("method is not supported");
+        }
+    }
+
+    @Override
+    public void resetPassword(String tokenId, User user, String newPassword) throws ResetterExpiredException {
         Token token = tokenManager.getToken(tokenId, false);
         if (token == null) throw new ResetterExpiredException();
-        String email = (String) token.getContent();
-        User user = new User();
-        user.setEmail(email);
-        user.setPassword(newPassword);
-        try {
-            userService.modifyPassword(user);
-        } catch (EmailDoesntExistException e) {
-            e.printStackTrace();
-        }
+        int id = (int) token.getContent();
+        if (user.getId() != id) throw new ResetterExpiredException();
+        userService.modifyPassword(user, newPassword);
     }
 
     @Override

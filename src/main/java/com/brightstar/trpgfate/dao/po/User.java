@@ -1,17 +1,35 @@
 package com.brightstar.trpgfate.dao.po;
 
+import com.brightstar.trpgfate.service.UserService;
+
+import java.sql.Timestamp;
+
 public final class User {
+    private int id;
     private String email;
     private byte[] passwdSha256Salted;
     private int role;
+    private boolean active;
+    private Timestamp createTime;
 
     public User() {
     }
 
-    public User(String email, byte[] passwdSha256Salted, int role) {
+    public User(int id, String email, byte[] passwdSha256Salted, int role, boolean active, Timestamp createTime) {
+        this.id = id;
         this.email = email;
         this.passwdSha256Salted = passwdSha256Salted;
         this.role = role;
+        this.active = active;
+        this.createTime = createTime;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getEmail() {
@@ -36,5 +54,21 @@ public final class User {
 
     public void setRole(int role) {
         this.role = role;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
+    public Timestamp getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(Timestamp createTime) {
+        this.createTime = createTime;
     }
 }

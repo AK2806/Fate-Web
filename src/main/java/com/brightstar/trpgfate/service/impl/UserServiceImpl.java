@@ -1,84 +1,166 @@
 package com.brightstar.trpgfate.service.impl;
 
+import com.brightstar.trpgfate.component.staticly.datetime.DatetimeConverter;
+import com.brightstar.trpgfate.component.staticly.uuid.UUIDHelper;
+import com.brightstar.trpgfate.config.file.AvatarConfig;
 import com.brightstar.trpgfate.config.security.SaltedSha256PasswordEncoder;
+import com.brightstar.trpgfate.dao.AccountDAO;
 import com.brightstar.trpgfate.dao.UserDAO;
 import com.brightstar.trpgfate.service.UserService;
+import com.brightstar.trpgfate.service.dto.Account;
 import com.brightstar.trpgfate.service.dto.User;
-import com.brightstar.trpgfate.service.exception.EmailExistsException;
-import com.brightstar.trpgfate.service.exception.EmailDoesntExistException;
+import com.brightstar.trpgfate.service.exception.UserConflictException;
+import com.brightstar.trpgfate.service.exception.UserDoesntExistException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.codec.Hex;
-import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.stereotype.Service;
 
-import javax.servlet.http.HttpSession;
+import java.sql.Date;
+import java.util.Calendar;
+import java.util.UUID;
 
 @Service
 public class UserServiceImpl implements UserService {
-    @Autowired
-    private UserDAO userDAO;
-    @Autowired
-    private SaltedSha256PasswordEncoder passwordEncoder;
-    @Autowired
-    private AuthenticationManager authManager;
+    private final class UserImpl implements User {
+        private int id;
+        private String email;
+        private int role;
+        private Calendar createTime;
+        private boolean active;
 
-    @Override
-    public boolean authenticate(User user) {
-        return authenticateCurrReq(user);
-    }
+        @Override
+        public int getId() {
+            return id;
+        }
 
-    @Override
-    public boolean authenticate(User user, HttpSession session, int durationInSeconds) {
-        if (authenticateCurrReq(user)) {
-            session.setAttribute(
-                    HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
-                    SecurityContextHolder.getContext());
-            session.setMaxInactiveInterval(durationInSeconds);
-            return true;
-        } else return false;
-    }
+        public void setId(int id) {
+            this.id = id;
+        }
 
-    private boolean authenticateCurrReq(User user) {
-        try {
-            UsernamePasswordAuthenticationToken authReqToken
-                    = new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword());
-            Authentication auth = authManager.authenticate(authReqToken);
-            if (auth == null) return false;
-            SecurityContext securityContext = SecurityContextHolder.getContext();
-            securityContext.setAuthentication(auth);
-            return true;
-        } catch (AuthenticationException e) {
-            return false;
+        @Override
+        public String getEmail() {
+            return email;
+        }
+
+        public void setEmail(String email) {
+            this.email = email;
+        }
+
+        @Override
+        public int getRole() {
+            return role;
+        }
+
+        public void setRole(int role) {
+            this.role = role;
+        }
+
+        @Override
+        public Calendar getCreateTime() {
+            return createTime;
+        }
+
+        public void setCreateTime(Calendar createTime) {
+            this.createTime = createTime;
+        }
+
+        @Override
+        public boolean isActive() {
+            return active;
+        }
+
+        public void setActive(boolean active) {
+            this.active = active;
         }
     }
 
+    @Autowired
+    private UserDAO userDAO;
+    @Autowired
+    private AccountDAO accountDAO;
+    @Autowired
+    private SaltedSha256PasswordEncoder passwordEncoder;
+    @Autowired
+    private AvatarConfig avatarConfig;
+
     @Override
-    public void register(User user, int role) throws EmailExistsException {
-        if (userDAO.findByEmail(user.getEmail()) != null) throw new EmailExistsException();
+    public User getUser(int id) throws UserDoesntExistException {
+        User ret = generateUserFromPO(userDAO.getById(id));
+        if (ret == null) throw new UserDoesntExistException();
+        return ret;
+    }
+
+    @Override
+    public User getUser(String email) throws UserDoesntExistException {
+        User ret = generateUserFromPO(userDAO.findByEmail(email));
+        if (ret == null) throw new UserDoesntExistException();
+        return ret;
+    }
+
+    private User generateUserFromPO(com.brightstar.trpgfate.dao.po.User po) {
+        if (po == null) return null;
+        UserImpl ret = new UserImpl();
+        ret.setId(po.getId());
+        ret.setEmail(po.getEmail());
+        ret.setRole(po.getRole());
+        ret.setCreateTime(DatetimeConverter.sqlTimestamp2Calendar(po.getCreateTime()));
+        ret.setActive(po.isActive());
+        return ret;
+    }
+
+    @Override
+    public void registerWithEmail(String email, String password, int role) throws UserConflictException {
+        if (userDAO.findByEmail(email) != null) throw new UserConflictException();
         com.brightstar.trpgfate.dao.po.User po = new com.brightstar.trpgfate.dao.po.User();
-        po.setEmail(user.getEmail());
-        po.setPasswdSha256Salted(Hex.decode(passwordEncoder.encode(user.getPassword())));
+        po.setEmail(email);
+        po.setPasswdSha256Salted(Hex.decode(passwordEncoder.encode(password)));
         po.setRole(role);
+        po.setCreateTime(DatetimeConverter.calendar2SqlTimestamp(Calendar.getInstance()));
+        po.setActive(true);
         userDAO.insert(po);
+        com.brightstar.trpgfate.dao.po.Account accountPo = new com.brightstar.trpgfate.dao.po.Account();
+        accountPo.setUserId(po.getId());
+        accountPo.setName(email);
+        accountPo.setAvatarId(UUIDHelper.convertToBytes(UUID.fromString(avatarConfig.getDefaultUUID())));
+        accountPo.setGender(Account.GENDER_UNKNOWN);
+        accountPo.setPrivacy(Account.PRIVACY_PRIVATE);
+        accountDAO.insert(accountPo);
     }
 
     @Override
-    public void modifyPassword(User user) throws EmailDoesntExistException {
-        com.brightstar.trpgfate.dao.po.User po = userDAO.findByEmail(user.getEmail());
-        if (po == null) throw new EmailDoesntExistException();
-        po.setPasswdSha256Salted(Hex.decode(passwordEncoder.encode(user.getPassword())));
-        userDAO.updatePasswd(po);
+    public void modifyPassword(User user, String newPassword) {
+        com.brightstar.trpgfate.dao.po.User po = userDAO.getById(user.getId());
+        po.setPasswdSha256Salted(Hex.decode(passwordEncoder.encode(newPassword)));
+        userDAO.updatePassword(po);
     }
 
     @Override
-    public boolean userExists(String email) {
-        return userDAO.findByEmail(email) != null;
+    public Account getAccountInfo(User user) {
+        com.brightstar.trpgfate.dao.po.Account po = accountDAO.findById(user.getId());
+        Account ret = new Account();
+        ret.setName(po.getName());
+        ret.setAvatar(UUIDHelper.convertFromBytes(po.getAvatarId()));
+        ret.setGender(po.getGender());
+        Date birthday = po.getBirthday();
+        if (birthday != null) ret.setBirthday(DatetimeConverter.sqlDate2Calendar(birthday));
+        else ret.setBirthday(null);
+        ret.setResidence(po.getResidence());
+        ret.setPrivacy(po.getPrivacy());
+        return ret;
+    }
+
+    @Override
+    public void updateAccountInfo(User user, Account account) {
+        com.brightstar.trpgfate.dao.po.Account po = new com.brightstar.trpgfate.dao.po.Account();
+        po.setUserId(user.getId());
+        po.setName(account.getName());
+        po.setAvatarId(UUIDHelper.convertToBytes(account.getAvatar()));
+        po.setGender(account.getGender());
+        Calendar birthday = account.getBirthday();
+        if (birthday != null) po.setBirthday(DatetimeConverter.calendar2SqlDate(birthday));
+        else po.setBirthday(null);
+        po.setResidence(account.getResidence());
+        po.setPrivacy(account.getPrivacy());
+        accountDAO.update(po);
     }
 }

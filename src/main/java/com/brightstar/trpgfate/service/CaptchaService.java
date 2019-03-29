@@ -5,5 +5,5 @@ import com.brightstar.trpgfate.service.exception.CaptchaExpiredException;
 public interface CaptchaService {
     Captcha generateCaptcha();
     Captcha getCaptcha(String id);
-    boolean validate(String captchaId, String text) throws CaptchaExpiredException;
+    boolean validate(String id, String text) throws CaptchaExpiredException;
 }

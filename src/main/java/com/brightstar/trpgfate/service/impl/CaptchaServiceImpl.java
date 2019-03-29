@@ -1,7 +1,7 @@
 package com.brightstar.trpgfate.service.impl;
 
-import com.brightstar.trpgfate.component.token.Token;
-import com.brightstar.trpgfate.component.token.TokenManager;
+import com.brightstar.trpgfate.component.ioc.token.Token;
+import com.brightstar.trpgfate.component.ioc.token.TokenManager;
 import com.brightstar.trpgfate.service.Captcha;
 import com.brightstar.trpgfate.service.CaptchaService;
 import com.brightstar.trpgfate.service.exception.CaptchaExpiredException;
@@ -51,18 +51,17 @@ public class CaptchaServiceImpl implements CaptchaService {
     public Captcha generateCaptcha() {
         Token token = tokenManager.generateToken();
         token.refresh(Calendar.MINUTE, 5);
-        String[] tokenContent = new String[2];
-        token.setContent(tokenContent);
-        tokenContent[0] = "";
-        tokenContent[1] = null;
         try (ByteArrayOutputStream pngOutputStream = new ByteArrayOutputStream()) {
+            String[] tokenContent = new String[2];
             SpecCaptcha specCaptcha = new SpecCaptcha(130, 48, 5);
             specCaptcha.setCharType(com.wf.captcha.Captcha.TYPE_NUM_AND_UPPER);
             specCaptcha.out(pngOutputStream);
             tokenContent[0] = Base64.getEncoder().encodeToString(pngOutputStream.toByteArray());
             tokenContent[1] = specCaptcha.text().toUpperCase(Locale.CHINA);
+            token.setContent(tokenContent);
         } catch (Exception e) {
             e.printStackTrace();
+            token.expire();
         }
         return new CaptchaImpl(token);
     }
@@ -74,8 +73,8 @@ public class CaptchaServiceImpl implements CaptchaService {
     }
 
     @Override
-    public boolean validate(String captchaId, String text) throws CaptchaExpiredException {
-        Token token = tokenManager.getToken(captchaId, false);
+    public boolean validate(String id, String text) throws CaptchaExpiredException {
+        Token token = tokenManager.getToken(id, false);
         if (token == null) throw new CaptchaExpiredException();
         String[] content = (String[]) token.getContent();
         text = text.toUpperCase(Locale.CHINA);

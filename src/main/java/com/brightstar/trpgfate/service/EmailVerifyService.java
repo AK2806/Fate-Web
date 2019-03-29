@@ -1,8 +1,7 @@
 package com.brightstar.trpgfate.service;
 
 import com.brightstar.trpgfate.service.exception.EmailVerifyExpiredException;
-
-import javax.mail.MessagingException;
+import com.brightstar.trpgfate.service.exception.MessageFailedException;
 
 /**
  * Email address verifier
@@ -12,9 +11,9 @@ public interface EmailVerifyService {
     /**
      * Generate an verification email and send it to the specified address
      * @param emailAddr the email address which need to be verified
-     * @throws MessagingException
+     * @throws MessageFailedException
      */
-    void generateEmail(String emailAddr) throws MessagingException;
+    void generateEmail(String emailAddr) throws MessageFailedException;
 
     /**
      * Check if the verification code matches email address

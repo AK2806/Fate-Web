@@ -1,29 +1,15 @@
 package com.brightstar.trpgfate.service.dto;
 
-public final class User {
-    private String email;
-    private String password;
+import java.util.Calendar;
 
-    public User() { }
+public interface User {
+    int ROLE_USER = 0;
+    int ROLE_ADMIN = 1;
+    int ROLE_SUPERADMIN = 2;
 
-    public User(String email, String password) {
-        this.email = email;
-        this.password = password;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
+    int getId();
+    String getEmail();
+    int getRole();
+    Calendar getCreateTime();
+    boolean isActive();
 }
