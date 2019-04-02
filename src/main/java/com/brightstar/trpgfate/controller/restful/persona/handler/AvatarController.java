@@ -20,7 +20,7 @@ import java.io.*;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/persona/avatar")
+@RequestMapping("/persona/{id}/avatar")
 public final class AvatarController {
     @Autowired
     private AvatarConfig avatarConfig;
@@ -30,7 +30,7 @@ public final class AvatarController {
     private RequestUserFetcher userFetcher;
 
     @PostMapping
-    public AvatarPostResp uploadImage(@RequestPart @Valid @NotNull MultipartFile imageFile) {
+    public AvatarPostResp uploadImage(@PathVariable int id, @RequestPart @Valid @NotNull MultipartFile imageFile) {
         if (imageFile.getSize() > 1024L * 1024L) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "图片大小不得超过1MB");
         String extension = FilenameUtils.getExtension(imageFile.getOriginalFilename());
         if (!"png".equals(extension)) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "参数格式错误");

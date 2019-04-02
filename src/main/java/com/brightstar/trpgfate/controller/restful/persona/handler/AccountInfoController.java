@@ -16,9 +16,10 @@ import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
 import java.util.Calendar;
+import java.util.Date;
 
 @RestController
-@RequestMapping("/persona/account-info")
+@RequestMapping("/persona/{id}/account-info")
 public final class AccountInfoController {
     @Autowired
     private UserService userService;
@@ -28,19 +29,28 @@ public final class AccountInfoController {
     private CommunityService communityService;
 
     @PatchMapping
-    public void updateAccountInfo(@RequestBody @Valid AccountInfoPatchReq req) {
+    public void updateAccountInfo(@PathVariable int id, @RequestBody @Valid AccountInfoPatchReq req) {
         User user = userFetcher.fetch();
-        Account account = userService.getAccountInfo(user);
+        if (user.getRole() <= User.ROLE_ADMIN && user.getId() != id)
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "没有权限修改此用户信息");
+        User targetUser;
+        try {
+            targetUser = userService.getUser(id);
+        } catch (UserDoesntExistException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "用户不存在", e);
+        }
+        Account account = userService.getAccountInfo(targetUser);
         account.setName(req.getName());
         account.setGender(req.getGender());
-        account.setBirthday(DatetimeConverter.utilDate2Calendar(req.getBirthday()));
+        Date birthday = req.getBirthday();
+        if (birthday != null) account.setBirthday(DatetimeConverter.utilDate2Calendar(req.getBirthday()));
+        else account.setBirthday(null);
         account.setResidence(req.getResidence());
         account.setPrivacy(req.getPrivacy());
-        userService.updateAccountInfo(user, account);
+        userService.updateAccountInfo(targetUser, account);
     }
 
     @GetMapping
-    @RequestMapping("/{id}")
     public AccountInfoGetResp fetchAccountInfo(@PathVariable int id) {
         User target;
         try {
@@ -51,11 +61,14 @@ public final class AccountInfoController {
         User self = userFetcher.fetch();
         Account account = userService.getAccountInfo(target);
         int privacy = account.getPrivacy();
-        if (self.getId() == target.getId() || privacy == Account.PRIVACY_PUBLIC) {
+        if (self.getId() == target.getId()
+                || privacy == Account.PRIVACY_PUBLIC
+                || self.getRole() > User.ROLE_ADMIN) {
             return generateAccountInfoGetResp(account);
         }
         if (privacy == Account.PRIVACY_FOLLOWEE) {
-            if (communityService.isFollowing(target, self)) {
+            if (communityService.isFollowing(target, self)
+                && communityService.isFollowing(self, target)) {
                 return generateAccountInfoGetResp(account);
             }
         }

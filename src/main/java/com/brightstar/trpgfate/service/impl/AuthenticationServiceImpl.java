@@ -26,7 +26,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         SecurityContext securityContext = SecurityContextHolder.getContext();
         Authentication auth = securityContext.getAuthentication();
         if (auth == null) return null;
-        return auth.getName();
+        return auth.isAuthenticated() ? auth.getName() : null;
     }
 
     @Override

@@ -1,7 +1,5 @@
 package com.brightstar.trpgfate.controller.restful.persona.vo;
 
-import org.springframework.format.annotation.DateTimeFormat;
-
 import javax.validation.constraints.*;
 import java.util.Date;
 
@@ -10,7 +8,7 @@ public final class AccountInfoPatchReq {
     private String name;
     @Min(0) @Max(2)
     private int gender;
-    @DateTimeFormat(pattern = "yyyy-MM-dd") @Past
+    @Past
     private Date birthday;
     @Size(max = 100)
     private String residence;
