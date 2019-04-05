@@ -5,6 +5,7 @@ import com.brightstar.trpgfate.component.ioc.token.TokenManager;
 import com.brightstar.trpgfate.component.ioc.email.EmailSender;
 import com.brightstar.trpgfate.service.PasswordResetService;
 import com.brightstar.trpgfate.service.UserService;
+import com.brightstar.trpgfate.service.dto.AccountInfo;
 import com.brightstar.trpgfate.service.dto.User;
 import com.brightstar.trpgfate.service.exception.MessageFailedException;
 import com.brightstar.trpgfate.service.exception.UserDoesntExistException;
@@ -38,7 +39,6 @@ public class PasswordResetServiceImpl implements PasswordResetService {
         token.refresh(Calendar.MINUTE, 10);
         token.setContent(id);
         Context ctx = new Context(Locale.CHINA);
-        ctx.setVariable("username", emailAddr);
         ctx.setVariable("pid", id);
         ctx.setVariable("tokenBs64", Base64.getEncoder().encodeToString(token.getId().getBytes(StandardCharsets.UTF_8)));
         String htmlContent = templateEngine.process("passwd_reset_email.html", ctx);

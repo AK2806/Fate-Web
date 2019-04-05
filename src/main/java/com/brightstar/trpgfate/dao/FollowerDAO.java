@@ -1,10 +1,7 @@
 package com.brightstar.trpgfate.dao;
 
 import com.brightstar.trpgfate.dao.po.Follower;
-import org.apache.ibatis.annotations.Delete;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -21,13 +18,13 @@ public interface FollowerDAO {
 
     @Select("select user_id as userId, follower_id as followerId, time from follower " +
             "where user_id=#{userId};")
-    List<Follower> findByUserId(int userId);
+    List<Follower> findByUserId(@Param("userId") int userId);
 
     @Select("select user_id as userId, follower_id as followerId, time from follower " +
             "where follower_id=#{followerId};")
-    List<Follower> findByFollowerId(int followerId);
+    List<Follower> findByFollowerId(@Param("followerId") int followerId);
 
     @Select("select user_id as userId, follower_id as followerId, time from follower " +
             "where user_id=#{userId} and follower_id=#{followerId};")
-    Follower get(int userId, int followerId);
+    Follower get(@Param("userId") int userId, @Param("followerId") int followerId);
 }

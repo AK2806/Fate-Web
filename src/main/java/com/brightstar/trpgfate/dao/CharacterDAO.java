@@ -10,21 +10,19 @@ import java.util.List;
 @Mapper
 public interface CharacterDAO {
 
-    @Insert("insert into character(guid, user_id, name, portrait) " +
-            "values(#{guid}, #{userId}, #{name}, #{portraitId});")
+    @Insert("insert into `character`(guid, user_id) " +
+            "values(#{guid}, #{userId});")
     int insert(Character character);
 
-    @Update("update character set name=#{name}, portrait=#{portraitId} where guid=#{guid};")
-    int update(Character character);
-
-    @Delete("delete from character where guid=#{guid} and user_id=#{userId};")
+    @Delete("delete from `character` where guid=#{guid} and user_id=#{userId};")
     int remove(Character character);
 
-    @Select("select guid, user_id as userId, name, portrait as portraitId from character " +
+    @Select("select guid, user_id as userId from `character` " +
             "where guid=#{guid};")
-    Character getByGuid(byte[] guid);
+    Character getByGuid(@Param("guid") byte[] guid);
 
-    @Select("select guid, user_id as userId, name, portrait as portraitId from character " +
-            "where user_id=#{userId};")
-    List<Character> findByUserId(int userId);
+    @Select("select guid, user_id as userId from `character` " +
+            "where user_id=#{userId} " +
+            "limit #{start},#{length};")
+    List<Character> findByUserId(@Param("userId") int userId, @Param("start") int start, @Param("length") int length);
 }

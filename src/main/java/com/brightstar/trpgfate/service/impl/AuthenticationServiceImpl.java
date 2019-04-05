@@ -22,21 +22,23 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private AuthenticationManager authManager;
 
     @Override
-    public String getAuthPrincipalName() {
-        SecurityContext securityContext = SecurityContextHolder.getContext();
+    public String getAuthPrincipalName(HttpSession session) {
+        SecurityContext securityContext =
+                (SecurityContext) session.getAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY);
+        if (securityContext == null) return null;
         Authentication auth = securityContext.getAuthentication();
-        if (auth == null) return null;
-        return auth.isAuthenticated() ? auth.getName() : null;
+        if (auth == null || !auth.isAuthenticated()) return null;
+        return auth.getName();
     }
 
     @Override
     public boolean authenticate(User user, String password) throws UserDisabledException {
-        return authenticateCurrReq(user, password);
+        return auth(user, password);
     }
 
     @Override
     public boolean authenticate(User user, String password, HttpSession session, int durationInSeconds) throws UserDisabledException {
-        if (authenticateCurrReq(user, password)) {
+        if (auth(user, password)) {
             session.setAttribute(
                     HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
                     SecurityContextHolder.getContext());
@@ -45,7 +47,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         } else return false;
     }
 
-    private boolean authenticateCurrReq(User user, String password) throws UserDisabledException {
+    private boolean auth(User user, String password) throws UserDisabledException {
         try {
             UsernamePasswordAuthenticationToken authReqToken
                     = new UsernamePasswordAuthenticationToken(String.valueOf(user.getId()), password);

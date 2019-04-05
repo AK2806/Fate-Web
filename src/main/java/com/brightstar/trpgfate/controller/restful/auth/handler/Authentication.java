@@ -6,6 +6,7 @@ import com.brightstar.trpgfate.controller.restful.auth.vo.AuthenticationPostEmai
 import com.brightstar.trpgfate.service.AuthenticationService;
 import com.brightstar.trpgfate.service.UserService;
 import com.brightstar.trpgfate.service.dto.User;
+import com.brightstar.trpgfate.service.exception.CaptchaExpiredException;
 import com.brightstar.trpgfate.service.exception.UserDisabledException;
 import com.brightstar.trpgfate.service.exception.UserDoesntExistException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,8 +29,8 @@ public final class Authentication {
     private UserService userService;
 
     @GetMapping
-    public AuthenticationGetResp loggedIn() {
-        String id = authService.getAuthPrincipalName();
+    public AuthenticationGetResp loggedIn(HttpServletRequest request) {
+        String id = authService.getAuthPrincipalName(request.getSession());
         if (id == null) throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         AuthenticationGetResp ret = new AuthenticationGetResp();
         ret.setUserId(Integer.parseInt(id));
@@ -39,7 +40,11 @@ public final class Authentication {
     @PostMapping
     @RequestMapping("/email")
     public void loginWithEmail(@RequestBody @Valid AuthenticationPostEmailReq req, HttpServletRequest httpRequest) {
-        captchaChecker.validate(req);
+        try {
+            captchaChecker.validate(req);
+        } catch (CaptchaExpiredException e) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "验证码已过期", e);
+        }
         User user;
         try {
             user = userService.getUser(req.getEmail());

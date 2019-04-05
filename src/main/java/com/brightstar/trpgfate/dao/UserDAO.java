@@ -19,8 +19,8 @@ public interface UserDAO {
     int updatePassword(User user);
 
     @Select("select id, email, passwd_hash as passwdSha256Salted, role, create_time as createTime, active from user where id=#{id};")
-    User getById(int id);
+    User getById(@Param("id") int id);
 
     @Select("select id, email, passwd_hash as passwdSha256Salted, role, create_time as createTime, active from user where email=#{email};")
-    User findByEmail(String email);
+    User findByEmail(@Param("email") String email);
 }

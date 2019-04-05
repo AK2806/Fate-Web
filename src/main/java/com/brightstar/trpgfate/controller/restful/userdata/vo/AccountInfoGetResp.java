@@ -1,30 +1,21 @@
-package com.brightstar.trpgfate.service.dto;
+package com.brightstar.trpgfate.controller.restful.userdata.vo;
 
-import java.util.Calendar;
-import java.util.UUID;
+import java.util.Date;
 
-public final class Account {
-    public static final int GENDER_MALE = 0;
-    public static final int GENDER_FEMALE = 1;
-    public static final int GENDER_UNKNOWN = 2;
-
-    public static final int PRIVACY_PRIVATE = 0;
-    public static final int PRIVACY_FOLLOWEE = 1;
-    public static final int PRIVACY_PUBLIC = 2;
-
+public final class AccountInfoGetResp {
     private String name;
-    private UUID avatar;
+    private String avatarId;
     private int gender;
-    private Calendar birthday;
+    private Date birthday;
     private String residence;
     private int privacy;
 
-    public Account() {
+    public AccountInfoGetResp() {
     }
 
-    public Account(String name, UUID avatar, int gender, Calendar birthday, String residence, int privacy) {
+    public AccountInfoGetResp(String name, String avatarId, int gender, Date birthday, String residence, int privacy) {
         this.name = name;
-        this.avatar = avatar;
+        this.avatarId = avatarId;
         this.gender = gender;
         this.birthday = birthday;
         this.residence = residence;
@@ -39,12 +30,12 @@ public final class Account {
         this.name = name;
     }
 
-    public UUID getAvatar() {
-        return avatar;
+    public String getAvatarId() {
+        return avatarId;
     }
 
-    public void setAvatar(UUID avatar) {
-        this.avatar = avatar;
+    public void setAvatarId(String avatarId) {
+        this.avatarId = avatarId;
     }
 
     public int getGender() {
@@ -55,11 +46,11 @@ public final class Account {
         this.gender = gender;
     }
 
-    public Calendar getBirthday() {
+    public Date getBirthday() {
         return birthday;
     }
 
-    public void setBirthday(Calendar birthday) {
+    public void setBirthday(Date birthday) {
         this.birthday = birthday;
     }
 

@@ -2,12 +2,12 @@ package com.brightstar.trpgfate.service.impl;
 
 import com.brightstar.trpgfate.component.staticly.datetime.DatetimeConverter;
 import com.brightstar.trpgfate.component.staticly.uuid.UUIDHelper;
-import com.brightstar.trpgfate.config.file.AvatarConfig;
+import com.brightstar.trpgfate.config.file.AvatarConfigInfo;
 import com.brightstar.trpgfate.config.security.SaltedSha256PasswordEncoder;
 import com.brightstar.trpgfate.dao.AccountDAO;
 import com.brightstar.trpgfate.dao.UserDAO;
 import com.brightstar.trpgfate.service.UserService;
-import com.brightstar.trpgfate.service.dto.Account;
+import com.brightstar.trpgfate.service.dto.AccountInfo;
 import com.brightstar.trpgfate.service.dto.User;
 import com.brightstar.trpgfate.service.exception.UserConflictException;
 import com.brightstar.trpgfate.service.exception.UserDoesntExistException;
@@ -81,7 +81,7 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private SaltedSha256PasswordEncoder passwordEncoder;
     @Autowired
-    private AvatarConfig avatarConfig;
+    private AvatarConfigInfo avatarConfigInfo;
 
     @Override
     public User getUser(int id) throws UserDoesntExistException {
@@ -121,9 +121,9 @@ public class UserServiceImpl implements UserService {
         com.brightstar.trpgfate.dao.po.Account accountPo = new com.brightstar.trpgfate.dao.po.Account();
         accountPo.setUserId(po.getId());
         accountPo.setName(email);
-        accountPo.setAvatarId(UUIDHelper.convertToBytes(UUID.fromString(avatarConfig.getDefaultUUID())));
-        accountPo.setGender(Account.GENDER_UNKNOWN);
-        accountPo.setPrivacy(Account.PRIVACY_PRIVATE);
+        accountPo.setAvatarId(UUIDHelper.toBytes(UUID.fromString(avatarConfigInfo.getDefaultUUID())));
+        accountPo.setGender(AccountInfo.GENDER_UNKNOWN);
+        accountPo.setPrivacy(AccountInfo.PRIVACY_PRIVATE);
         accountDAO.insert(accountPo);
     }
 
@@ -135,11 +135,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Account getAccountInfo(User user) {
+    public AccountInfo getAccountInfo(User user) {
         com.brightstar.trpgfate.dao.po.Account po = accountDAO.findById(user.getId());
-        Account ret = new Account();
+        AccountInfo ret = new AccountInfo();
         ret.setName(po.getName());
-        ret.setAvatar(UUIDHelper.convertFromBytes(po.getAvatarId()));
+        ret.setAvatar(UUIDHelper.fromBytes(po.getAvatarId()));
         ret.setGender(po.getGender());
         Date birthday = po.getBirthday();
         if (birthday != null) ret.setBirthday(DatetimeConverter.sqlDate2Calendar(birthday));
@@ -150,17 +150,17 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void updateAccountInfo(User user, Account account) {
+    public void updateAccountInfo(User user, AccountInfo accountInfo) {
         com.brightstar.trpgfate.dao.po.Account po = new com.brightstar.trpgfate.dao.po.Account();
         po.setUserId(user.getId());
-        po.setName(account.getName());
-        po.setAvatarId(UUIDHelper.convertToBytes(account.getAvatar()));
-        po.setGender(account.getGender());
-        Calendar birthday = account.getBirthday();
+        po.setName(accountInfo.getName());
+        po.setAvatarId(UUIDHelper.toBytes(accountInfo.getAvatar()));
+        po.setGender(accountInfo.getGender());
+        Calendar birthday = accountInfo.getBirthday();
         if (birthday != null) po.setBirthday(DatetimeConverter.calendar2SqlDate(birthday));
         else po.setBirthday(null);
-        po.setResidence(account.getResidence());
-        po.setPrivacy(account.getPrivacy());
+        po.setResidence(accountInfo.getResidence());
+        po.setPrivacy(accountInfo.getPrivacy());
         accountDAO.update(po);
     }
 }

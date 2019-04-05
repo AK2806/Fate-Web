@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @ConfigurationProperties("application.avatar")
-public class AvatarConfig {
+public class AvatarConfigInfo {
     private String baseDirectory;
     private String defaultUUID;
 

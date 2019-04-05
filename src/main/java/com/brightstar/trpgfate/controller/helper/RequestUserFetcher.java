@@ -1,30 +1,29 @@
 package com.brightstar.trpgfate.controller.helper;
 
+import com.brightstar.trpgfate.service.AuthenticationService;
 import com.brightstar.trpgfate.service.UserService;
 import com.brightstar.trpgfate.service.dto.User;
 import com.brightstar.trpgfate.service.exception.UserDoesntExistException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
-import org.springframework.web.server.ResponseStatusException;
+
+import javax.servlet.http.HttpServletRequest;
 
 @Component
 public class RequestUserFetcher {
     @Autowired
     private UserService userService;
+    @Autowired
+    private AuthenticationService authService;
 
-    public User fetch() {
-        SecurityContext securityContext = SecurityContextHolder.getContext();
-        Authentication auth = securityContext.getAuthentication();
-        if (auth == null) throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Invalid session");
-        int id = Integer.parseInt(auth.getName());
+    public User fetch(HttpServletRequest request) throws UserDoesntExistException {
+        String idStr = authService.getAuthPrincipalName(request.getSession());
+        if (idStr == null) throw new UserDoesntExistException();
         try {
+            int id = Integer.parseInt(idStr);
             return userService.getUser(id);
-        } catch (UserDoesntExistException e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Invalid session");
+        } catch (Exception e) {
+            throw new UserDoesntExistException();
         }
     }
 }

@@ -1,10 +1,7 @@
 package com.brightstar.trpgfate.dao;
 
 import com.brightstar.trpgfate.dao.po.Account;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Select;
-import org.apache.ibatis.annotations.Update;
+import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigInteger;
@@ -22,5 +19,5 @@ public interface AccountDAO {
     int update(Account account);
 
     @Select("select user_id as userId, name, avatar as avatarId, gender, birthday, residence, privacy from account where user_id=#{id};")
-    Account findById(int id);
+    Account findById(@Param("id") int id);
 }

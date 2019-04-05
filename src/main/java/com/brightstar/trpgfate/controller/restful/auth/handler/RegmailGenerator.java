@@ -4,6 +4,7 @@ import com.brightstar.trpgfate.controller.helper.CaptchaChecker;
 import com.brightstar.trpgfate.controller.restful.auth.vo.RegmailGeneratorPostReq;
 import com.brightstar.trpgfate.service.EmailVerifyService;
 import com.brightstar.trpgfate.service.UserService;
+import com.brightstar.trpgfate.service.exception.CaptchaExpiredException;
 import com.brightstar.trpgfate.service.exception.MessageFailedException;
 import com.brightstar.trpgfate.service.exception.UserDoesntExistException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +26,11 @@ public final class RegmailGenerator {
 
     @PostMapping
     public void createVerificationMail(@RequestBody @Valid RegmailGeneratorPostReq req) {
-        captchaChecker.validate(req);
+        try {
+            captchaChecker.validate(req);
+        } catch (CaptchaExpiredException e) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "验证码已过期", e);
+        }
         try {
             userService.getUser(req.getEmailAddr());
             throw new ResponseStatusException(HttpStatus.CONFLICT, "这个邮箱已被注册");

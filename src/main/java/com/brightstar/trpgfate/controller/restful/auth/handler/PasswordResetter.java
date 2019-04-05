@@ -6,6 +6,7 @@ import com.brightstar.trpgfate.controller.restful.auth.vo.PasswordResetterPutReq
 import com.brightstar.trpgfate.service.PasswordResetService;
 import com.brightstar.trpgfate.service.UserService;
 import com.brightstar.trpgfate.service.dto.User;
+import com.brightstar.trpgfate.service.exception.CaptchaExpiredException;
 import com.brightstar.trpgfate.service.exception.MessageFailedException;
 import com.brightstar.trpgfate.service.exception.UserDoesntExistException;
 import com.brightstar.trpgfate.service.exception.ResetterExpiredException;
@@ -29,7 +30,11 @@ public final class PasswordResetter {
     @PostMapping
     @RequestMapping("/email")
     public void generateResetLink(@RequestBody @Valid PasswordResetterPostEmailReq req) {
-        captchaChecker.validate(req);
+        try {
+            captchaChecker.validate(req);
+        } catch (CaptchaExpiredException e) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "验证码已过期", e);
+        }
         User user;
         try {
             user = userService.getUser(req.getEmail());

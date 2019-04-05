@@ -22,9 +22,9 @@ public interface ModDAO {
 
     @Select("select guid, user_id as userId, title, thumbnail, origin as originModGuid from mod " +
             "where guid=#{guid};")
-    Mod getByGuid(byte[] guid);
+    Mod getByGuid(@Param("guid") byte[] guid);
 
     @Select("select guid, user_id as userId, title, thumbnail, origin as originModGuid from mod " +
             "where user_id=#{userId};")
-    List<Mod> findByUserId(int userId);
+    List<Mod> findByUserId(@Param("userId") int userId);
 }

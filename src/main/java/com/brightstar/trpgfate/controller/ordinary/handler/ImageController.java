@@ -1,6 +1,8 @@
 package com.brightstar.trpgfate.controller.ordinary.handler;
 
-import com.brightstar.trpgfate.config.file.AvatarConfig;
+import com.brightstar.trpgfate.component.staticly.uuid.UUIDHelper;
+import com.brightstar.trpgfate.config.file.AvatarConfigInfo;
+import com.brightstar.trpgfate.config.file.CharacterConfigInfo;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,20 +16,31 @@ import org.springframework.web.server.ResponseStatusException;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
-import java.util.regex.Pattern;
 
 @Controller
 @RequestMapping("/img")
 public final class ImageController {
     @Autowired
-    private AvatarConfig avatarConfig;
+    private AvatarConfigInfo avatarConfigInfo;
+    @Autowired
+    private CharacterConfigInfo characterConfigInfo;
 
     @GetMapping
     @RequestMapping("/avatar/{uuid}")
-    public void downloadImage(@PathVariable String uuid, HttpServletResponse response) {
-        Pattern pattern = Pattern.compile("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}");
-        if (!pattern.matcher(uuid).matches()) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Image not exists");
-        String fullPath = FilenameUtils.concat(avatarConfig.getBaseDirectory(),   uuid + ".png");
+    public void downloadAvatar(@PathVariable String uuid, HttpServletResponse response) {
+        if (!UUIDHelper.isUUID(uuid)) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Image not exists");
+        downloadImage(avatarConfigInfo.getBaseDirectory(), uuid, response);
+    }
+
+    @GetMapping
+    @RequestMapping("/character/{uuid}")
+    public void downloadPortrait(@PathVariable String uuid, HttpServletResponse response) {
+        if (!UUIDHelper.isUUID(uuid)) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Image not exists");
+        downloadImage(characterConfigInfo.getBaseDirectory(), uuid, response);
+    }
+
+    private void downloadImage(String baseDir, String name, HttpServletResponse response) {
+        String fullPath = FilenameUtils.concat(baseDir,   name + ".png");
         File image = new File(fullPath);
         if (!image.exists()) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Image not exists");
         response.setContentType(MediaType.IMAGE_PNG_VALUE);

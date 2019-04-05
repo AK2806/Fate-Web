@@ -1,21 +1,30 @@
-package com.brightstar.trpgfate.controller.restful.persona.vo;
+package com.brightstar.trpgfate.service.dto;
 
-import java.util.Date;
+import java.util.Calendar;
+import java.util.UUID;
 
-public final class AccountInfoGetResp {
+public final class AccountInfo {
+    public static final int GENDER_MALE = 0;
+    public static final int GENDER_FEMALE = 1;
+    public static final int GENDER_UNKNOWN = 2;
+
+    public static final int PRIVACY_PRIVATE = 0;
+    public static final int PRIVACY_FOLLOWER = 1;
+    public static final int PRIVACY_PUBLIC = 2;
+
     private String name;
-    private String avatarId;
+    private UUID avatar;
     private int gender;
-    private Date birthday;
+    private Calendar birthday;
     private String residence;
     private int privacy;
 
-    public AccountInfoGetResp() {
+    public AccountInfo() {
     }
 
-    public AccountInfoGetResp(String name, String avatarId, int gender, Date birthday, String residence, int privacy) {
+    public AccountInfo(String name, UUID avatar, int gender, Calendar birthday, String residence, int privacy) {
         this.name = name;
-        this.avatarId = avatarId;
+        this.avatar = avatar;
         this.gender = gender;
         this.birthday = birthday;
         this.residence = residence;
@@ -30,12 +39,12 @@ public final class AccountInfoGetResp {
         this.name = name;
     }
 
-    public String getAvatarId() {
-        return avatarId;
+    public UUID getAvatar() {
+        return avatar;
     }
 
-    public void setAvatarId(String avatarId) {
-        this.avatarId = avatarId;
+    public void setAvatar(UUID avatar) {
+        this.avatar = avatar;
     }
 
     public int getGender() {
@@ -46,11 +55,11 @@ public final class AccountInfoGetResp {
         this.gender = gender;
     }
 
-    public Date getBirthday() {
+    public Calendar getBirthday() {
         return birthday;
     }
 
-    public void setBirthday(Date birthday) {
+    public void setBirthday(Calendar birthday) {
         this.birthday = birthday;
     }
 
