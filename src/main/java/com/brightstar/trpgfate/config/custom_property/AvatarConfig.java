@@ -1,11 +1,11 @@
-package com.brightstar.trpgfate.config.file;
+package com.brightstar.trpgfate.config.custom_property;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 @Component
 @ConfigurationProperties("application.avatar")
-public class AvatarConfigInfo {
+public final class AvatarConfig {
     private String baseDirectory;
     private String defaultUUID;
 

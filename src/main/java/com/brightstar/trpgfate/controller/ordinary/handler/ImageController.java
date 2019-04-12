@@ -1,8 +1,8 @@
 package com.brightstar.trpgfate.controller.ordinary.handler;
 
 import com.brightstar.trpgfate.component.staticly.uuid.UUIDHelper;
-import com.brightstar.trpgfate.config.file.AvatarConfigInfo;
-import com.brightstar.trpgfate.config.file.CharacterConfigInfo;
+import com.brightstar.trpgfate.config.custom_property.AvatarConfig;
+import com.brightstar.trpgfate.config.custom_property.CharacterConfig;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,22 +21,22 @@ import java.io.*;
 @RequestMapping("/img")
 public final class ImageController {
     @Autowired
-    private AvatarConfigInfo avatarConfigInfo;
+    private AvatarConfig avatarConfig;
     @Autowired
-    private CharacterConfigInfo characterConfigInfo;
+    private CharacterConfig characterConfig;
 
     @GetMapping
     @RequestMapping("/avatar/{uuid}")
     public void downloadAvatar(@PathVariable String uuid, HttpServletResponse response) {
         if (!UUIDHelper.isUUID(uuid)) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Image not exists");
-        downloadImage(avatarConfigInfo.getBaseDirectory(), uuid, response);
+        downloadImage(avatarConfig.getBaseDirectory(), uuid, response);
     }
 
     @GetMapping
     @RequestMapping("/character/{uuid}")
     public void downloadPortrait(@PathVariable String uuid, HttpServletResponse response) {
         if (!UUIDHelper.isUUID(uuid)) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Image not exists");
-        downloadImage(characterConfigInfo.getBaseDirectory(), uuid, response);
+        downloadImage(characterConfig.getBaseDirectory(), uuid, response);
     }
 
     private void downloadImage(String baseDir, String name, HttpServletResponse response) {

@@ -41,7 +41,8 @@ public final class Authentication {
     @RequestMapping("/email")
     public void loginWithEmail(@RequestBody @Valid AuthenticationPostEmailReq req, HttpServletRequest httpRequest) {
         try {
-            captchaChecker.validate(req);
+            if (!captchaChecker.validate(req))
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "验证码错误");
         } catch (CaptchaExpiredException e) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "验证码已过期", e);
         }

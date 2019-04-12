@@ -1,6 +1,6 @@
 package com.brightstar.trpgfate.controller.restful.persona.handler;
 
-import com.brightstar.trpgfate.config.file.AvatarConfigInfo;
+import com.brightstar.trpgfate.config.custom_property.AvatarConfig;
 import com.brightstar.trpgfate.controller.helper.RequestUserFetcher;
 import com.brightstar.trpgfate.controller.restful.persona.vo.AvatarPostResp;
 import com.brightstar.trpgfate.service.UserService;
@@ -25,7 +25,7 @@ import java.util.UUID;
 @RequestMapping("/persona/avatar")
 public final class AvatarController {
     @Autowired
-    private AvatarConfigInfo avatarConfigInfo;
+    private AvatarConfig avatarConfig;
     @Autowired
     private UserService userService;
     @Autowired
@@ -51,7 +51,7 @@ public final class AvatarController {
         try {
             do {
                 uuid = UUID.randomUUID();
-                String fullPath = FilenameUtils.concat(avatarConfigInfo.getBaseDirectory(), uuid.toString() + ".png");
+                String fullPath = FilenameUtils.concat(avatarConfig.getBaseDirectory(), uuid.toString() + ".png");
                 file = new File(fullPath);
             } while (!file.createNewFile());
         } catch (IOException e) {
@@ -65,8 +65,8 @@ public final class AvatarController {
         }
 
         String oldUUID = accountInfo.getAvatar().toString();
-        if (!oldUUID.equals(avatarConfigInfo.getDefaultUUID())) {
-            String oldFullPath = FilenameUtils.concat(avatarConfigInfo.getBaseDirectory(), oldUUID + ".png");
+        if (!oldUUID.equals(avatarConfig.getDefaultUUID())) {
+            String oldFullPath = FilenameUtils.concat(avatarConfig.getBaseDirectory(), oldUUID + ".png");
             File oldFile = new File(oldFullPath);
             oldFile.delete();
         }

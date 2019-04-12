@@ -4,6 +4,7 @@ import com.brightstar.trpgfate.dao.po.Follower;
 import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Repository;
 
+import java.sql.Timestamp;
 import java.util.List;
 
 @Repository
@@ -17,12 +18,40 @@ public interface FollowerDAO {
     int remove(Follower follower);
 
     @Select("select user_id as userId, follower_id as followerId, time from follower " +
-            "where user_id=#{userId};")
-    List<Follower> findByUserId(@Param("userId") int userId);
+            "where user_id=#{userId} " +
+            "limit #{start},#{length};")
+    List<Follower> findFollowerByUserId(@Param("userId") int userId, @Param("start") int start, @Param("length") int length);
 
     @Select("select user_id as userId, follower_id as followerId, time from follower " +
+            "where user_id=#{userId} and create_time>=#{fromTime} " +
+            "limit #{start},#{length};")
+    List<Follower> findFollowerByUserId(@Param("userId") int userId, @Param("fromTime") Timestamp from, @Param("start") int start, @Param("length") int length);
+
+    @Select("select count(follower_id) from follower " +
+            "where user_id=#{userId};")
+    int getFollowerCountByUserId(@Param("userId") int userId);
+
+    @Select("select count(follower_id) from follower " +
+            "where user_id=#{userId} and create_time>=#{fromTime};")
+    int getFollowerCountByUserId(@Param("userId") int userId, @Param("fromTime") Timestamp from);
+
+    @Select("select user_id as userId, follower_id as followerId, time from follower " +
+            "where follower_id=#{followerId} " +
+            "limit #{start},#{length};")
+    List<Follower> findFolloweeByFollowerId(@Param("followerId") int followerId, @Param("start") int start, @Param("length") int length);
+
+    @Select("select user_id as userId, follower_id as followerId, time from follower " +
+            "where follower_id=#{followerId} and create_time>=#{fromTime} " +
+            "limit #{start},#{length};")
+    List<Follower> findFolloweeByFollowerId(@Param("followerId") int followerId, @Param("fromTime") Timestamp from, @Param("start") int start, @Param("length") int length);
+
+    @Select("select count(user_id) from follower " +
             "where follower_id=#{followerId};")
-    List<Follower> findByFollowerId(@Param("followerId") int followerId);
+    int getFolloweeCountByFollowerId(@Param("followerId") int followerId);
+
+    @Select("select count(user_id) from follower " +
+            "where follower_id=#{followerId} and create_time>=#{fromTime};")
+    int getFolloweeCountByFollowerId(@Param("followerId") int followerId, @Param("fromTime") Timestamp from);
 
     @Select("select user_id as userId, follower_id as followerId, time from follower " +
             "where user_id=#{userId} and follower_id=#{followerId};")

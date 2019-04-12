@@ -2,7 +2,7 @@ package com.brightstar.trpgfate.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.brightstar.trpgfate.component.staticly.uuid.UUIDHelper;
-import com.brightstar.trpgfate.config.file.CharacterConfigInfo;
+import com.brightstar.trpgfate.config.custom_property.CharacterConfig;
 import com.brightstar.trpgfate.dao.CharacterDAO;
 import com.brightstar.trpgfate.service.CharacterService;
 import com.brightstar.trpgfate.service.dto.User;
@@ -23,7 +23,7 @@ public class CharacterServiceImpl implements CharacterService {
     @Autowired
     private CharacterDAO characterDAO;
     @Autowired
-    private CharacterConfigInfo characterConfigInfo;
+    private CharacterConfig characterConfig;
 
     @Override
     public void createCharacter(Character character, User user, InputStream portraitStream) throws CharacterCreationException {
@@ -43,7 +43,7 @@ public class CharacterServiceImpl implements CharacterService {
         po.setGuid(UUIDHelper.toBytes(character.getUuid()));
         po.setUserId(character.getBelongUserId());
         characterDAO.remove(po);
-        String baseDir = characterConfigInfo.getBaseDirectory();
+        String baseDir = characterConfig.getBaseDirectory();
         String fullPath = FilenameUtils.concat(baseDir, character.getUuid() + ".png");
         File file = new File(fullPath);
         file.delete();
@@ -80,7 +80,8 @@ public class CharacterServiceImpl implements CharacterService {
 
     @Override
     public List<Character> getCharactersOfUser(User user, int bundle) {
-        List<com.brightstar.trpgfate.dao.po.Character> pos = characterDAO.findByUserId(user.getId(), bundle * 10, 10);
+        int bundleSize = characterConfig.getBundleSize();
+        List<com.brightstar.trpgfate.dao.po.Character> pos = characterDAO.findByUserId(user.getId(), bundle * bundleSize, bundleSize);
         ArrayList<Character> ret = new ArrayList<>();
         for (com.brightstar.trpgfate.dao.po.Character po : pos) {
             Character character = readData(UUIDHelper.fromBytes(po.getGuid()));
@@ -88,6 +89,18 @@ public class CharacterServiceImpl implements CharacterService {
             ret.add(character);
         }
         return ret;
+    }
+
+    @Override
+    public int getCharacterBundleCountOfUser(User user) {
+        int count = characterDAO.getCountByUserId(user.getId());
+        if (count % characterConfig.getBundleSize() != 0) {
+            count /= characterConfig.getBundleSize();
+            ++count;
+        } else {
+            count /= characterConfig.getBundleSize();
+        }
+        return count > 0 ? count : 1;
     }
 
     private File createFile(String path, boolean overwrite) {
@@ -107,7 +120,7 @@ public class CharacterServiceImpl implements CharacterService {
     }
 
     private boolean createPortrait(Character character, InputStream imgStream, boolean overwrite) {
-        String baseDir = characterConfigInfo.getBaseDirectory();
+        String baseDir = characterConfig.getBaseDirectory();
         String fullPath = FilenameUtils.concat(baseDir, character.getUuid() + ".png");
         File file = createFile(fullPath, overwrite);
         if (file == null) return false;
@@ -121,7 +134,7 @@ public class CharacterServiceImpl implements CharacterService {
     }
 
     private boolean writeData(Character character, boolean overwrite) {
-        String baseDir = characterConfigInfo.getBaseDirectory();
+        String baseDir = characterConfig.getBaseDirectory();
         String fullPath = FilenameUtils.concat(baseDir, character.getUuid() + ".json");
         File file = createFile(fullPath, overwrite);
         if (file == null) return false;
@@ -136,7 +149,7 @@ public class CharacterServiceImpl implements CharacterService {
     }
 
     private Character readData(UUID characterId) {
-        String baseDir = characterConfigInfo.getBaseDirectory();String fullPath = FilenameUtils.concat(baseDir, characterId + ".json");
+        String baseDir = characterConfig.getBaseDirectory();String fullPath = FilenameUtils.concat(baseDir, characterId + ".json");
         File file = new File(fullPath);
         StringBuilder stringBuilder = new StringBuilder();
         try (FileReader jsonReader = new FileReader(file)) {

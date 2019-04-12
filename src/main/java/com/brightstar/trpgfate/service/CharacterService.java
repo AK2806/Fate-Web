@@ -15,4 +15,5 @@ public interface CharacterService {
     void updateCharacterOnlyData(Character character) throws CharacterCreationException;
     Character getCharacterById(UUID characterId);
     List<Character> getCharactersOfUser(User user, int bundle);
+    int getCharacterBundleCountOfUser(User user);
 }

@@ -36,8 +36,8 @@ public class UserPrivacyChecker {
             if (self.getId() == user.getId() || self.getRole() > User.ROLE_USER) {
                 return true;
             } else if (privacy == AccountInfo.PRIVACY_FOLLOWER) {
-                if (communityService.isFollowing(user, self)
-                        && communityService.isFollowing(self, user)) {
+                if (communityService.isFollowing(user, self) != null
+                        && communityService.isFollowing(self, user) != null) {
                     return true;
                 }
             }

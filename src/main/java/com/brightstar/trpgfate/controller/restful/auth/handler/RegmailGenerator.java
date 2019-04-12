@@ -27,10 +27,12 @@ public final class RegmailGenerator {
     @PostMapping
     public void createVerificationMail(@RequestBody @Valid RegmailGeneratorPostReq req) {
         try {
-            captchaChecker.validate(req);
+            if (!captchaChecker.validate(req))
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "验证码错误");
         } catch (CaptchaExpiredException e) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "验证码已过期", e);
         }
+
         try {
             userService.getUser(req.getEmailAddr());
             throw new ResponseStatusException(HttpStatus.CONFLICT, "这个邮箱已被注册");

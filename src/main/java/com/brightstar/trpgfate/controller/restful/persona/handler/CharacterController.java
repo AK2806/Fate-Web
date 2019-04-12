@@ -163,7 +163,7 @@ public final class CharacterController {
             stunt.setType(stuntData.getType());
             switch (stunt.getType()) {
                 case Stunt.TYPE_PRESET:
-                    if (!PresetStuntPool.getStunts().contains(new StuntInfo(stunt.getPresetId()))) continue;
+                    if (!PresetStuntPool.getStunts().contains(new StuntInfo(stuntData.getPresetId()))) continue;
                     stunt.setPresetId(stuntData.getPresetId());
                     break;
                 case Stunt.TYPE_CUSTOM:

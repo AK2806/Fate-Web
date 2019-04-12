@@ -31,10 +31,12 @@ public final class PasswordResetter {
     @RequestMapping("/email")
     public void generateResetLink(@RequestBody @Valid PasswordResetterPostEmailReq req) {
         try {
-            captchaChecker.validate(req);
+            if (!captchaChecker.validate(req))
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "验证码错误");
         } catch (CaptchaExpiredException e) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "验证码已过期", e);
         }
+
         User user;
         try {
             user = userService.getUser(req.getEmail());

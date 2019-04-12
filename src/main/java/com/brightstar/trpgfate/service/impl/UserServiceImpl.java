@@ -2,10 +2,13 @@ package com.brightstar.trpgfate.service.impl;
 
 import com.brightstar.trpgfate.component.staticly.datetime.DatetimeConverter;
 import com.brightstar.trpgfate.component.staticly.uuid.UUIDHelper;
-import com.brightstar.trpgfate.config.file.AvatarConfigInfo;
+import com.brightstar.trpgfate.config.custom_property.AvatarConfig;
 import com.brightstar.trpgfate.config.security.SaltedSha256PasswordEncoder;
 import com.brightstar.trpgfate.dao.AccountDAO;
+import com.brightstar.trpgfate.dao.AnnouncementDAO;
+import com.brightstar.trpgfate.dao.NotificationDAO;
 import com.brightstar.trpgfate.dao.UserDAO;
+import com.brightstar.trpgfate.dao.po.Notification;
 import com.brightstar.trpgfate.service.UserService;
 import com.brightstar.trpgfate.service.dto.AccountInfo;
 import com.brightstar.trpgfate.service.dto.User;
@@ -81,7 +84,11 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private SaltedSha256PasswordEncoder passwordEncoder;
     @Autowired
-    private AvatarConfigInfo avatarConfigInfo;
+    private AvatarConfig avatarConfig;
+    @Autowired
+    private NotificationDAO notificationDAO;
+    @Autowired
+    private AnnouncementDAO announcementDAO;
 
     @Override
     public User getUser(int id) throws UserDoesntExistException {
@@ -121,10 +128,14 @@ public class UserServiceImpl implements UserService {
         com.brightstar.trpgfate.dao.po.Account accountPo = new com.brightstar.trpgfate.dao.po.Account();
         accountPo.setUserId(po.getId());
         accountPo.setName(email);
-        accountPo.setAvatarId(UUIDHelper.toBytes(UUID.fromString(avatarConfigInfo.getDefaultUUID())));
+        accountPo.setAvatarId(UUIDHelper.toBytes(UUID.fromString(avatarConfig.getDefaultUUID())));
         accountPo.setGender(AccountInfo.GENDER_UNKNOWN);
         accountPo.setPrivacy(AccountInfo.PRIVACY_PRIVATE);
         accountDAO.insert(accountPo);
+        Notification notificationPo = new Notification();
+        notificationPo.setUserId(po.getId());
+        notificationPo.setLastTimeRead(DatetimeConverter.calendar2SqlTimestamp(Calendar.getInstance()));
+        notificationDAO.insert(notificationPo);
     }
 
     @Override

@@ -6,6 +6,7 @@ import com.brightstar.trpgfate.controller.restful.nested_vo.character.CharacterD
 import com.brightstar.trpgfate.controller.restful.nested_vo.character.PortraitData;
 import com.brightstar.trpgfate.controller.restful.userdata.vo.CharacterGetByIdResp;
 import com.brightstar.trpgfate.controller.restful.userdata.vo.CharacterGetListByUserResp;
+import com.brightstar.trpgfate.controller.restful.userdata.vo.CharacterGetListGroupCountByUserResp;
 import com.brightstar.trpgfate.service.CharacterService;
 import com.brightstar.trpgfate.service.UserService;
 import com.brightstar.trpgfate.service.dto.User;
@@ -32,8 +33,6 @@ public final class CharacterController {
     private CharacterService characterService;
     @Autowired
     private UserService userService;
-    @Autowired
-    private UserPrivacyChecker privacyChecker;
 
     @GetMapping
     @RequestMapping("/concrete/{uuid}")
@@ -44,8 +43,6 @@ public final class CharacterController {
         User target;
         try {
             target = userService.getUser(character.getBelongUserId());
-            if (!privacyChecker.isAccessible(target, request))
-                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "由于ta的隐私设置，你无法查看ta的资料");
         } catch (UserDoesntExistException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
@@ -114,13 +111,26 @@ public final class CharacterController {
     }
 
     @GetMapping
+    @RequestMapping("/list/{id}")
+    public CharacterGetListGroupCountByUserResp fetchListGroupCountByUser(@PathVariable int id, HttpServletRequest request) {
+        User target;
+        try {
+            target = userService.getUser(id);
+        } catch (UserDoesntExistException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+        int count = characterService.getCharacterBundleCountOfUser(target);
+        CharacterGetListGroupCountByUserResp ret = new CharacterGetListGroupCountByUserResp();
+        ret.setCount(count);
+        return ret;
+    }
+
+    @GetMapping
     @RequestMapping("/list/{id}/{page}")
     public CharacterGetListByUserResp fetchListByUser(@PathVariable int id, @PathVariable int page, HttpServletRequest request) {
         User target;
         try {
             target = userService.getUser(id);
-            if (!privacyChecker.isAccessible(target, request))
-                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "由于ta的隐私设置，你无法查看ta的资料");
         } catch (UserDoesntExistException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }

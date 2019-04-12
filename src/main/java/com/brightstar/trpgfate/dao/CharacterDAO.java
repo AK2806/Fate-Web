@@ -25,4 +25,8 @@ public interface CharacterDAO {
             "where user_id=#{userId} " +
             "limit #{start},#{length};")
     List<Character> findByUserId(@Param("userId") int userId, @Param("start") int start, @Param("length") int length);
+
+    @Select("select count(guid) from `character` " +
+            "where user_id=#{userId};")
+    int getCountByUserId(@Param("userId") int userId);
 }

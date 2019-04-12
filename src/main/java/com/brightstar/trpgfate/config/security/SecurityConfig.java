@@ -22,7 +22,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http
                 .cors().and().csrf().disable().anonymous().disable()
                 .authorizeRequests()
-                .regexMatchers("/persona/.+").authenticated()
+                .regexMatchers("/persona/.+").hasAuthority("USER")
                 .regexMatchers("/console/.+").hasAuthority("ADMIN");
     }
 
