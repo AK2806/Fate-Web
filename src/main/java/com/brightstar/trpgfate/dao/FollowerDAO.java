@@ -23,35 +23,26 @@ public interface FollowerDAO {
     List<Follower> findFollowerByUserId(@Param("userId") int userId, @Param("start") int start, @Param("length") int length);
 
     @Select("select user_id as userId, follower_id as followerId, time from follower " +
-            "where user_id=#{userId} and create_time>=#{fromTime} " +
+            "where user_id=#{userId} and time>=#{fromTime} " +
             "limit #{start},#{length};")
-    List<Follower> findFollowerByUserId(@Param("userId") int userId, @Param("fromTime") Timestamp from, @Param("start") int start, @Param("length") int length);
+    List<Follower> findFollowerByUserIdAndTime(@Param("userId") int userId, @Param("fromTime") Timestamp from, @Param("start") int start, @Param("length") int length);
 
     @Select("select count(follower_id) from follower " +
             "where user_id=#{userId};")
     int getFollowerCountByUserId(@Param("userId") int userId);
 
     @Select("select count(follower_id) from follower " +
-            "where user_id=#{userId} and create_time>=#{fromTime};")
-    int getFollowerCountByUserId(@Param("userId") int userId, @Param("fromTime") Timestamp from);
+            "where user_id=#{userId} and time>=#{fromTime};")
+    int getFollowerCountByUserIdAndTime(@Param("userId") int userId, @Param("fromTime") Timestamp from);
 
     @Select("select user_id as userId, follower_id as followerId, time from follower " +
             "where follower_id=#{followerId} " +
             "limit #{start},#{length};")
     List<Follower> findFolloweeByFollowerId(@Param("followerId") int followerId, @Param("start") int start, @Param("length") int length);
 
-    @Select("select user_id as userId, follower_id as followerId, time from follower " +
-            "where follower_id=#{followerId} and create_time>=#{fromTime} " +
-            "limit #{start},#{length};")
-    List<Follower> findFolloweeByFollowerId(@Param("followerId") int followerId, @Param("fromTime") Timestamp from, @Param("start") int start, @Param("length") int length);
-
     @Select("select count(user_id) from follower " +
             "where follower_id=#{followerId};")
     int getFolloweeCountByFollowerId(@Param("followerId") int followerId);
-
-    @Select("select count(user_id) from follower " +
-            "where follower_id=#{followerId} and create_time>=#{fromTime};")
-    int getFolloweeCountByFollowerId(@Param("followerId") int followerId, @Param("fromTime") Timestamp from);
 
     @Select("select user_id as userId, follower_id as followerId, time from follower " +
             "where user_id=#{userId} and follower_id=#{followerId};")

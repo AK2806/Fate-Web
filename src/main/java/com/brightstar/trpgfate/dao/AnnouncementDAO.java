@@ -11,16 +11,21 @@ import java.util.List;
 @Mapper
 public interface AnnouncementDAO {
 
-    @Insert("insert into announcement(create_time, title, content) " +
-            "values(#{createTime}, #{title}, #{content});")
+    @Insert("insert into announcement(id, title, content, create_time) " +
+            "values(#{id}, #{title}, #{content}, #{createTime});")
+    @Options(useGeneratedKeys = true, keyProperty = "id", keyColumn = "id")
     int insert(Announcement announcement);
 
-    @Select("select create_time as createTime, title, content from announcement " +
-            "order by create_time desc " +
+    @Select("select id, title, content, create_time as createTime from announcement " +
+            "order by id desc " +
             "limit #{start},#{length};")
     List<Announcement> getAnnouncements(@Param("start") int start, @Param("length") int length);
 
-    @Select("select count(create_time) from announcement " +
-            "where create_time>=#{from};")
-    int getCount(@Param("from") Timestamp from);
+    @Select("select id, title, content, create_time as createTime from announcement " +
+            "order by id desc limit 1;")
+    Announcement getLastAnnouncement();
+
+    @Select("select count(id) from announcement " +
+            "where id>=#{startId};")
+    int getCount(@Param("startId") int startId);
 }

@@ -5,7 +5,8 @@ import com.brightstar.trpgfate.service.dto.User;
 import java.util.Calendar;
 
 public interface NotificationService {
-    int getFollowersCountAfter(User user, Calendar lastTime);
-    int getAnnouncementsCountAfter(User user, Calendar lastTime);
-    void markRead(User user);
+    int getFollowersCountAfterLastRead(User user);
+    int getAnnouncementsCountAfterLastRead(User user);
+    void markReadFollowers(User user);
+    void markReadAnnouncements(User user);
 }

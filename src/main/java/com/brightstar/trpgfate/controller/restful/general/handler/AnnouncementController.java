@@ -1,7 +1,8 @@
-package com.brightstar.trpgfate.controller.restful.userdata.handler;
+package com.brightstar.trpgfate.controller.restful.general.handler;
 
 import com.brightstar.trpgfate.component.staticly.datetime.DatetimeConverter;
-import com.brightstar.trpgfate.controller.restful.userdata.vo.AnnouncementGetResp;
+import com.brightstar.trpgfate.controller.restful.general.vo.AnnouncementGetPageCountResp;
+import com.brightstar.trpgfate.controller.restful.general.vo.AnnouncementGetResp;
 import com.brightstar.trpgfate.service.dto.Announcement;
 import com.brightstar.trpgfate.service.AnnouncementService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,8 +14,8 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.ArrayList;
 import java.util.List;
 
-@RestController("userdataAnnouncement")
-@RequestMapping("/userdata/announcement")
+@RestController("generalAnnouncement")
+@RequestMapping("/announcement")
 public class AnnouncementController {
     @Autowired
     private AnnouncementService announcementService;
@@ -31,6 +32,13 @@ public class AnnouncementController {
             resp.setCreateTime(DatetimeConverter.calendar2UtilDate(announcement.getCreateTime()));
             ret.add(resp);
         }
+        return ret;
+    }
+
+    @GetMapping
+    public AnnouncementGetPageCountResp getAnnouncementPagesCount() {
+        AnnouncementGetPageCountResp ret = new AnnouncementGetPageCountResp();
+        ret.setCount(announcementService.getAnnouncementBundleCount());
         return ret;
     }
 }

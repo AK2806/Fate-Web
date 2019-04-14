@@ -4,7 +4,8 @@ import java.sql.Timestamp;
 
 public final class Notification {
     private int userId;
-    private Timestamp lastTimeRead;
+    private Timestamp lastViewFollowerTime;
+    private int lastReadAnnouncementId;
 
     public int getUserId() {
         return userId;
@@ -14,11 +15,19 @@ public final class Notification {
         this.userId = userId;
     }
 
-    public Timestamp getLastTimeRead() {
-        return lastTimeRead;
+    public Timestamp getLastViewFollowerTime() {
+        return lastViewFollowerTime;
     }
 
-    public void setLastTimeRead(Timestamp lastTimeRead) {
-        this.lastTimeRead = lastTimeRead;
+    public void setLastViewFollowerTime(Timestamp lastViewFollowerTime) {
+        this.lastViewFollowerTime = lastViewFollowerTime;
+    }
+
+    public int getLastReadAnnouncementId() {
+        return lastReadAnnouncementId;
+    }
+
+    public void setLastReadAnnouncementId(int lastReadAnnouncementId) {
+        this.lastReadAnnouncementId = lastReadAnnouncementId;
     }
 }

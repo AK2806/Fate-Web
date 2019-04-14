@@ -22,7 +22,7 @@ public class AnnouncementServiceImpl implements AnnouncementService {
 
     @Override
     public int getAnnouncementBundleCount() {
-        int count = announcementDAO.getCount(new Timestamp(0));
+        int count = announcementDAO.getCount(0);
         if (count % announcementConfig.getBundleSize() != 0) {
             count /= announcementConfig.getBundleSize();
             ++count;

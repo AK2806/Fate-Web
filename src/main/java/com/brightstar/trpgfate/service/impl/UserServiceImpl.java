@@ -134,7 +134,8 @@ public class UserServiceImpl implements UserService {
         accountDAO.insert(accountPo);
         Notification notificationPo = new Notification();
         notificationPo.setUserId(po.getId());
-        notificationPo.setLastTimeRead(DatetimeConverter.calendar2SqlTimestamp(Calendar.getInstance()));
+        notificationPo.setLastViewFollowerTime(DatetimeConverter.calendar2SqlTimestamp(Calendar.getInstance()));
+        notificationPo.setLastReadAnnouncementId(announcementDAO.getLastAnnouncement().getId());
         notificationDAO.insert(notificationPo);
     }
 

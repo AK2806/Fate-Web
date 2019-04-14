@@ -3,16 +3,17 @@ package com.brightstar.trpgfate.dao.po;
 import java.sql.Timestamp;
 
 public final class Announcement {
-    private Timestamp createTime;
+    private int id;
     private String title;
     private String content;
+    private Timestamp createTime;
 
-    public Timestamp getCreateTime() {
-        return createTime;
+    public int getId() {
+        return id;
     }
 
-    public void setCreateTime(Timestamp createTime) {
-        this.createTime = createTime;
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getTitle() {
@@ -29,5 +30,13 @@ public final class Announcement {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public Timestamp getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(Timestamp createTime) {
+        this.createTime = createTime;
     }
 }

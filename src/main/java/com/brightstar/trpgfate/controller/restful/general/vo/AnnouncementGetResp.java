@@ -1,4 +1,4 @@
-package com.brightstar.trpgfate.controller.restful.userdata.vo;
+package com.brightstar.trpgfate.controller.restful.general.vo;
 
 import java.util.Date;
 
