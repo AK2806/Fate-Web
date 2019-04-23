@@ -16,7 +16,7 @@ import javax.validation.Valid;
 
 @RestController("personaFollowee")
 @RequestMapping("/persona/followee")
-public class FolloweeController {
+public final class FolloweeController {
     @Autowired
     private RequestUserFetcher userFetcher;
     @Autowired

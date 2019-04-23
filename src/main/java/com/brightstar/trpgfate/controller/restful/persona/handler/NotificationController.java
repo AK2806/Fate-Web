@@ -15,7 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 
 @RestController("personaNotification")
 @RequestMapping("/persona/notification")
-public class NotificationController {
+public final class NotificationController {
     @Autowired
     private RequestUserFetcher userFetcher;
     @Autowired

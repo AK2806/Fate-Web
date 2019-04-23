@@ -9,7 +9,7 @@ import java.util.concurrent.ConcurrentMap;
 
 @Component
 public class SimpleConcurrentTokenManagerImpl implements TokenManager {
-    private final class TokenImpl implements Token {
+    private static final class TokenImpl implements Token {
         private final String id;
         private Calendar expireTime;
         private Object content;

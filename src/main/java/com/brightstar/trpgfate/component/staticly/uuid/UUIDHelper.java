@@ -21,7 +21,7 @@ public class UUIDHelper {
         return bb.array();
     }
 
-    public static boolean isUUID(String uuid) {
+    public static boolean isUUIDString(String uuid) {
         Pattern pattern = Pattern.compile("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}");
         return pattern.matcher(uuid).matches();
     }

@@ -1,4 +1,4 @@
-package com.brightstar.trpgfate.controller.ordinary.handler;
+package com.brightstar.trpgfate.controller.ordinary.general.handler;
 
 import com.brightstar.trpgfate.component.staticly.uuid.UUIDHelper;
 import com.brightstar.trpgfate.config.custom_property.AvatarConfig;
@@ -28,14 +28,14 @@ public final class ImageController {
     @GetMapping
     @RequestMapping("/avatar/{uuid}")
     public void downloadAvatar(@PathVariable String uuid, HttpServletResponse response) {
-        if (!UUIDHelper.isUUID(uuid)) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Image not exists");
+        if (!UUIDHelper.isUUIDString(uuid)) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Image not exists");
         downloadImage(avatarConfig.getBaseDirectory(), uuid, response);
     }
 
     @GetMapping
     @RequestMapping("/character/{uuid}")
     public void downloadPortrait(@PathVariable String uuid, HttpServletResponse response) {
-        if (!UUIDHelper.isUUID(uuid)) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Image not exists");
+        if (!UUIDHelper.isUUIDString(uuid)) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Image not exists");
         downloadImage(characterConfig.getBaseDirectory(), uuid, response);
     }
 

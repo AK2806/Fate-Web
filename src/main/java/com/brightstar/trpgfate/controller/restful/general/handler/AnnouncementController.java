@@ -16,7 +16,7 @@ import java.util.List;
 
 @RestController("generalAnnouncement")
 @RequestMapping("/announcement")
-public class AnnouncementController {
+public final class AnnouncementController {
     @Autowired
     private AnnouncementService announcementService;
 

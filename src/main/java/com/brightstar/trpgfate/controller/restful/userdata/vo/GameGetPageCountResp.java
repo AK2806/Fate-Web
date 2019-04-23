@@ -1,6 +1,6 @@
-package com.brightstar.trpgfate.controller.restful.general.vo;
+package com.brightstar.trpgfate.controller.restful.userdata.vo;
 
-public final class AnnouncementGetPageCountResp {
+public final class GameGetPageCountResp {
     private int count;
 
     public int getCount() {

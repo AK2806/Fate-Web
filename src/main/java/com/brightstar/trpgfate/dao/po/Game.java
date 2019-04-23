@@ -4,19 +4,11 @@ import java.sql.Timestamp;
 
 public final class Game {
     private byte[] guid;
+    private int userId;
+    private byte[] modGuid;
     private Timestamp createTime;
     private int status;
-    private byte[] modGuid;
-
-    public Game() {
-    }
-
-    public Game(byte[] guid, Timestamp createTime, int status, byte[] modGuid) {
-        this.guid = guid;
-        this.createTime = createTime;
-        this.status = status;
-        this.modGuid = modGuid;
-    }
+    private String title;
 
     public byte[] getGuid() {
         return guid;
@@ -24,6 +16,22 @@ public final class Game {
 
     public void setGuid(byte[] guid) {
         this.guid = guid;
+    }
+
+    public int getUserId() {
+        return userId;
+    }
+
+    public void setUserId(int userId) {
+        this.userId = userId;
+    }
+
+    public byte[] getModGuid() {
+        return modGuid;
+    }
+
+    public void setModGuid(byte[] modGuid) {
+        this.modGuid = modGuid;
     }
 
     public Timestamp getCreateTime() {
@@ -42,11 +50,11 @@ public final class Game {
         this.status = status;
     }
 
-    public byte[] getModGuid() {
-        return modGuid;
+    public String getTitle() {
+        return title;
     }
 
-    public void setModGuid(byte[] modGuid) {
-        this.modGuid = modGuid;
+    public void setTitle(String title) {
+        this.title = title;
     }
 }

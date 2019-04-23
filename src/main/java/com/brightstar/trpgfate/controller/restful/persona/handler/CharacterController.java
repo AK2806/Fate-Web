@@ -3,7 +3,7 @@ package com.brightstar.trpgfate.controller.restful.persona.handler;
 import com.brightstar.trpgfate.application.character.ability.AbilityInfo;
 import com.brightstar.trpgfate.application.character.ability.AbilityPool;
 import com.brightstar.trpgfate.application.character.stunt.PresetStuntPool;
-import com.brightstar.trpgfate.application.character.stunt.StuntInfo;
+import com.brightstar.trpgfate.application.character.stunt.PresetStuntInfo;
 import com.brightstar.trpgfate.component.staticly.uuid.UUIDHelper;
 import com.brightstar.trpgfate.controller.helper.RequestUserFetcher;
 import com.brightstar.trpgfate.controller.restful.nested_vo.character.CharacterData;
@@ -41,6 +41,10 @@ public final class CharacterController {
     private CharacterService characterService;
     @Autowired
     private RequestUserFetcher userFetcher;
+    @Autowired
+    private AbilityPool abilityPool;
+    @Autowired
+    private PresetStuntPool presetStuntPool;
 
     @PostMapping
     public void createCharacter(@RequestPart("data") @Valid CharacterPostReq req,
@@ -113,7 +117,7 @@ public final class CharacterController {
     @DeleteMapping
     @RequestMapping("/{uuid}")
     public void deleteCharacter(@PathVariable String uuid, HttpServletRequest request) {
-        if (!UUIDHelper.isUUID(uuid)) throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        if (!UUIDHelper.isUUIDString(uuid)) throw new ResponseStatusException(HttpStatus.NOT_FOUND);
 
         User user;
         try {
@@ -150,7 +154,7 @@ public final class CharacterController {
         dto.setAspects(aspects);
         HashSet<Ability> abilities = new HashSet<>();
         for (CharacterData.AbilityData abilityData : vo.getAbilities()) {
-            if (!AbilityPool.getAbilities().contains(new AbilityInfo(abilityData.getId()))) continue;
+            if (!abilityPool.getAbilities().contains(new AbilityInfo(abilityData.getId()))) continue;
             Ability ability = new Ability();
             ability.setId(abilityData.getId());
             ability.setLevel(abilityData.getLevel());
@@ -163,11 +167,11 @@ public final class CharacterController {
             stunt.setType(stuntData.getType());
             switch (stunt.getType()) {
                 case Stunt.TYPE_PRESET:
-                    if (!PresetStuntPool.getStunts().contains(new StuntInfo(stuntData.getPresetId()))) continue;
+                    if (!presetStuntPool.getStunts().contains(new PresetStuntInfo(stuntData.getPresetId()))) continue;
                     stunt.setPresetId(stuntData.getPresetId());
                     break;
                 case Stunt.TYPE_CUSTOM:
-                    if (!UUIDHelper.isUUID(stuntData.getUuid())) throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+                    if (!UUIDHelper.isUUIDString(stuntData.getUuid())) throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
                     stunt.setUuid(UUID.fromString(stuntData.getUuid()));
                     break;
             }
@@ -177,7 +181,7 @@ public final class CharacterController {
         ArrayList<Extra> extras = new ArrayList<>();
         for (CharacterData.ExtraData extraData : vo.getExtras()) {
             Extra extra = new Extra();
-            if (!UUIDHelper.isUUID(extraData.getUuid())) throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+            if (!UUIDHelper.isUUIDString(extraData.getUuid())) throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
             extra.setUuid(UUID.fromString(extraData.getUuid()));
             extras.add(extra);
         }

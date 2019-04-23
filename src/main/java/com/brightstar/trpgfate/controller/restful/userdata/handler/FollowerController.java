@@ -1,6 +1,5 @@
 package com.brightstar.trpgfate.controller.restful.userdata.handler;
 
-import com.brightstar.trpgfate.controller.helper.UserPrivacyChecker;
 import com.brightstar.trpgfate.controller.restful.userdata.vo.FollowerGetListGroupCountResp;
 import com.brightstar.trpgfate.controller.restful.userdata.vo.FollowerGetListResp;
 import com.brightstar.trpgfate.service.CommunityService;
@@ -16,7 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 
 @RestController("userdataFollower")
 @RequestMapping("/userdata")
-public class FollowerController {
+public final class FollowerController {
     @Autowired
     private UserService userService;
     @Autowired

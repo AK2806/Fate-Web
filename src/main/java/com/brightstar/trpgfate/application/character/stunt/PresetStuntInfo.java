@@ -1,14 +1,14 @@
 package com.brightstar.trpgfate.application.character.stunt;
 
-public final class StuntInfo {
+public final class PresetStuntInfo {
     private String id;
     private String name;
     private String description;
 
-    public StuntInfo() {
+    public PresetStuntInfo() {
     }
 
-    public StuntInfo(String id) {
+    public PresetStuntInfo(String id) {
         this.id = id;
     }
 
@@ -38,6 +38,6 @@ public final class StuntInfo {
 
     @Override
     public boolean equals(Object obj) {
-        return obj instanceof StuntInfo && id.equals(((StuntInfo) obj).id);
+        return obj instanceof PresetStuntInfo && id.equals(((PresetStuntInfo) obj).id);
     }
 }

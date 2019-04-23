@@ -2,7 +2,7 @@ package com.brightstar.trpgfate.service.dto;
 
 import java.util.Calendar;
 
-public class Announcement {
+public final class Announcement {
     private Calendar createTime;
     private String title;
     private String htmlContent;

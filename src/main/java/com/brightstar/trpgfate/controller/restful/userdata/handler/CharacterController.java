@@ -1,7 +1,6 @@
 package com.brightstar.trpgfate.controller.restful.userdata.handler;
 
 import com.brightstar.trpgfate.component.staticly.uuid.UUIDHelper;
-import com.brightstar.trpgfate.controller.helper.UserPrivacyChecker;
 import com.brightstar.trpgfate.controller.restful.nested_vo.character.CharacterData;
 import com.brightstar.trpgfate.controller.restful.nested_vo.character.PortraitData;
 import com.brightstar.trpgfate.controller.restful.userdata.vo.CharacterGetByIdResp;
@@ -36,8 +35,8 @@ public final class CharacterController {
 
     @GetMapping
     @RequestMapping("/concrete/{uuid}")
-    public CharacterGetByIdResp fetchById(@PathVariable String uuid, HttpServletRequest request) {
-        if (!UUIDHelper.isUUID(uuid)) throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+    public CharacterGetByIdResp fetchById(@PathVariable String uuid) {
+        if (!UUIDHelper.isUUIDString(uuid)) throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         Character character = characterService.getCharacterById(UUID.fromString(uuid));
         if (character == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         User target;
@@ -112,7 +111,7 @@ public final class CharacterController {
 
     @GetMapping
     @RequestMapping("/list/{id}")
-    public CharacterGetListGroupCountByUserResp fetchListGroupCountByUser(@PathVariable int id, HttpServletRequest request) {
+    public CharacterGetListGroupCountByUserResp fetchListGroupCountByUser(@PathVariable int id) {
         User target;
         try {
             target = userService.getUser(id);
@@ -127,7 +126,7 @@ public final class CharacterController {
 
     @GetMapping
     @RequestMapping("/list/{id}/{page}")
-    public CharacterGetListByUserResp fetchListByUser(@PathVariable int id, @PathVariable int page, HttpServletRequest request) {
+    public CharacterGetListByUserResp fetchListByUser(@PathVariable int id, @PathVariable int page) {
         User target;
         try {
             target = userService.getUser(id);

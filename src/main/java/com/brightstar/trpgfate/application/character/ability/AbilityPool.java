@@ -2,6 +2,7 @@ package com.brightstar.trpgfate.application.character.ability;
 
 import com.alibaba.fastjson.JSON;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
@@ -12,14 +13,15 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 
+@Component
 public class AbilityPool {
-    public static List<AbilityInfo> getAbilities() {
+    public List<AbilityInfo> getAbilities() {
         return abilities;
     }
 
-    private static final List<AbilityInfo> abilities;
+    private final List<AbilityInfo> abilities;
 
-    static {
+    public AbilityPool() {
         StringBuilder stringBuilder = new StringBuilder();
         try (InputStreamReader reader = new InputStreamReader(new ClassPathResource("ability.json").getInputStream())) {
             char[] charSeq = new char[2048];
