@@ -5,7 +5,7 @@ import java.util.UUID;
 
 public interface Game {
     int STATUS_CREATED = 0;
-    int STATUS_PLAYING = 1;
+    int STATUS_PLAYABLE = 1;
     int STATUS_GAME_OVER = 2;
     
     UUID getUuid();

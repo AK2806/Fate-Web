@@ -1,7 +1,6 @@
 package com.brightstar.trpgfate.service;
 
 import com.brightstar.trpgfate.service.dto.Game;
-import com.brightstar.trpgfate.service.dto.GameTable;
 import com.brightstar.trpgfate.service.dto.User;
 import com.brightstar.trpgfate.service.dto.character.Character;
 import com.brightstar.trpgfate.service.exception.InvalidGameStateException;
@@ -30,11 +29,4 @@ public interface GameService {
     int getCreatedGameBundleCountByUserAsPlayer(User user);
     List<Game> getCreatedGameByUserAsDM(User user, int bundle);
     int getCreatedGameBundleCountByUserAsDM(User user);
-
-    GameTable openGameTable(Game game) throws InvalidGameStateException;
-    GameTable getOpenedGameTable(Game game);
-    void closeGameTable(Game game);
-    default boolean hasGameTable(Game game) {
-        return getOpenedGameTable(game) != null;
-    }
 }

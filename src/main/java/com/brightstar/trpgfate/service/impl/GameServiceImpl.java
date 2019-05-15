@@ -1,22 +1,17 @@
 package com.brightstar.trpgfate.service.impl;
 
-import com.brightstar.trpgfate.application.game_instance.GameInstanceManager;
 import com.brightstar.trpgfate.component.staticly.datetime.DatetimeConverter;
 import com.brightstar.trpgfate.component.staticly.uuid.UUIDHelper;
 import com.brightstar.trpgfate.config.custom_property.GameConfig;
 import com.brightstar.trpgfate.dao.GameDAO;
 import com.brightstar.trpgfate.dao.GamePlayerDAO;
-import com.brightstar.trpgfate.dao.GamingRecordDAO;
 import com.brightstar.trpgfate.dao.ModDAO;
 import com.brightstar.trpgfate.dao.po.GamePlayer;
-import com.brightstar.trpgfate.dao.po.GamingRecord;
 import com.brightstar.trpgfate.dao.po.Mod;
 import com.brightstar.trpgfate.service.CharacterService;
 import com.brightstar.trpgfate.service.GameService;
 import com.brightstar.trpgfate.service.UserService;
 import com.brightstar.trpgfate.service.dto.Game;
-import com.brightstar.trpgfate.application.game_instance.GameInstance;
-import com.brightstar.trpgfate.service.dto.GameTable;
 import com.brightstar.trpgfate.service.dto.User;
 import com.brightstar.trpgfate.service.dto.character.Character;
 import com.brightstar.trpgfate.service.exception.InvalidGameStateException;
@@ -25,11 +20,9 @@ import com.brightstar.trpgfate.service.exception.UserConflictException;
 import com.brightstar.trpgfate.service.exception.UserDoesntExistException;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -107,11 +100,7 @@ public class GameServiceImpl implements GameService {
     @Autowired
     private GamePlayerDAO gamePlayerDAO;
     @Autowired
-    private GamingRecordDAO gamingRecordDAO;
-    @Autowired
     private ModDAO modDAO;
-    @Autowired
-    private GameInstanceManager gameInstanceManager;
     @Autowired
     private GameConfig gameConfig;
     @Autowired
@@ -165,7 +154,7 @@ public class GameServiceImpl implements GameService {
         if (po.getStatus() != Game.STATUS_CREATED && newStatus == Game.STATUS_CREATED)
             throw new InvalidGameStateException();
         switch (newStatus) {
-            case Game.STATUS_PLAYING: {
+            case Game.STATUS_PLAYABLE: {
                 List<GamePlayer> players = gamePlayerDAO.getGamePlayersByGameId(po.getGuid());
                 if (players.size() <= 0) throw new InvalidGameStateException();
                 for (GamePlayer player : players) {
@@ -306,58 +295,6 @@ public class GameServiceImpl implements GameService {
         return count > 0 ? count : 1;
     }
 
-    @Override
-    public GameTable openGameTable(Game game) throws InvalidGameStateException {
-        clearDeadGameInstance();
-        UUID uuid = game.getUuid();
-        if (game.getStatus() != Game.STATUS_PLAYING) throw new InvalidGameStateException("This game is not in playing status.");
-        if (gameInstanceManager.getRunningInstance(uuid) != null) throw new InvalidGameStateException("This game has already had an instance.");
-        GameTable ret = null;
-        if (!game.isFastGame()) {
-            try {
-                GameInstance gameInstance = gameInstanceManager.createInstance(uuid);
-                ret = generateGameTableData(gameInstance);
-            } catch (IOException e) {
-                throw new InvalidGameStateException(e);
-            }
-        }
-        return ret;
-    }
-
-    @Override
-    public GameTable getOpenedGameTable(Game game) {
-        clearDeadGameInstance();
-        UUID uuid = game.getUuid();
-        GameInstance gameInstance = gameInstanceManager.getRunningInstance(uuid);
-        if (gameInstance == null) return null;
-        return generateGameTableData(gameInstance);
-    }
-
-    @Override
-    public void closeGameTable(Game game) {
-        clearDeadGameInstance();
-        UUID uuid = game.getUuid();
-        GameInstance gameInstance = gameInstanceManager.getRunningInstance(uuid);
-        if (gameInstance == null) return;
-        gameInstanceManager.destroyInstance(gameInstance);
-        GamingRecord po = new GamingRecord();
-        po.setGameGuid(UUIDHelper.toBytes(game.getUuid()));
-        po.setInstanceGuid(UUIDHelper.toBytes(UUID.randomUUID()));
-        po.setBeginTime(DatetimeConverter.calendar2SqlTimestamp(gameInstance.getCreateTime()));
-        po.setEndTime(DatetimeConverter.calendar2SqlTimestamp(Calendar.getInstance()));
-        gamingRecordDAO.insert(po);
-    }
-
-    private GameTable generateGameTableData(GameInstance gameInstance) {
-        GameTable ret = new GameTable();
-        ret.setGameUuid(gameInstance.getGameUuid());
-        ret.setCreateTime(gameInstance.getCreateTime());
-        ret.setGameProcess(gameInstance.getProcess());
-        ret.setSocketAddress(gameInstance.getSocketAddress());
-        ret.setSocketPort(gameInstance.getSocketPort());
-        return ret;
-    }
-
     private Game generateGameData(com.brightstar.trpgfate.dao.po.Game po) {
         GameImpl game = new GameImpl();
         game.setUuid(UUIDHelper.fromBytes(po.getGuid()));
@@ -367,18 +304,5 @@ public class GameServiceImpl implements GameService {
         game.setStatus(po.getStatus());
         game.setTitle(po.getTitle());
         return game;
-    }
-
-    @Scheduled(fixedDelay = 5000L)
-    private void clearDeadGameInstance() {
-        ArrayList<GameInstance> toBeDestroying = new ArrayList<>();
-        gameInstanceManager.forEachInstance(gameInstance -> {
-            if (!gameInstance.getProcess().isAlive()) {
-                toBeDestroying.add(gameInstance);
-            }
-        });
-        for (GameInstance instance : toBeDestroying) {
-            gameInstanceManager.destroyInstance(instance);
-        }
     }
 }

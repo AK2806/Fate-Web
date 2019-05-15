@@ -1,8 +1,8 @@
-package com.brightstar.trpgfate.controller.restful.client.vo;
+package com.brightstar.trpgfate.controller.restful.persona.vo;
 
 import javax.validation.constraints.Pattern;
 
-public class GameTablePostReq {
+public final class GameTablePostReq {
     @Pattern(regexp = "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}")
     private String gameUuid;
 

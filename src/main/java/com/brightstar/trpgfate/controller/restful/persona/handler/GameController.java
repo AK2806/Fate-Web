@@ -59,6 +59,27 @@ public final class GameController {
         return ret;
     }
 
+    @PutMapping("/{gameUuid}")
+    public void makeGameReady(@PathVariable String gameUuid, HttpServletRequest request) {
+        User self;
+        try {
+            self = userFetcher.fetch(request);
+        } catch (UserDoesntExistException e) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        }
+        if (!UUIDHelper.isUUIDString(gameUuid)) throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+
+        Game game = gameService.getGame(UUID.fromString(gameUuid));
+        if (game == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        if (game.getBelongUserId() != self.getId()) throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        game.setStatus(Game.STATUS_PLAYABLE);
+        try {
+            gameService.updateGameStatus(game);
+        } catch (InvalidGameStateException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+    }
+
     @DeleteMapping("/{gameUuid}")
     public void removeGame(@PathVariable String gameUuid, HttpServletRequest request) {
         User self;
@@ -71,6 +92,7 @@ public final class GameController {
 
         Game game = gameService.getGame(UUID.fromString(gameUuid));
         if (game == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        if (game.getBelongUserId() != self.getId()) throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         gameService.invalidGame(game);
     }
 

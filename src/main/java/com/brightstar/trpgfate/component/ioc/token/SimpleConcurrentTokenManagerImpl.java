@@ -1,5 +1,6 @@
 package com.brightstar.trpgfate.component.ioc.token;
 
+import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -8,6 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 @Component
+@Scope("prototype")
 public class SimpleConcurrentTokenManagerImpl implements TokenManager {
     private static final class TokenImpl implements Token {
         private final String id;
