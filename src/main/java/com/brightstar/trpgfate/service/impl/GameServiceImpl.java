@@ -5,6 +5,7 @@ import com.brightstar.trpgfate.component.staticly.uuid.UUIDHelper;
 import com.brightstar.trpgfate.config.custom_property.GameConfig;
 import com.brightstar.trpgfate.dao.GameDAO;
 import com.brightstar.trpgfate.dao.GamePlayerDAO;
+import com.brightstar.trpgfate.dao.GamingRecordDAO;
 import com.brightstar.trpgfate.dao.ModDAO;
 import com.brightstar.trpgfate.dao.po.GamePlayer;
 import com.brightstar.trpgfate.dao.po.Mod;
@@ -12,6 +13,7 @@ import com.brightstar.trpgfate.service.CharacterService;
 import com.brightstar.trpgfate.service.GameService;
 import com.brightstar.trpgfate.service.UserService;
 import com.brightstar.trpgfate.service.dto.Game;
+import com.brightstar.trpgfate.service.dto.GamingRecord;
 import com.brightstar.trpgfate.service.dto.User;
 import com.brightstar.trpgfate.service.dto.character.Character;
 import com.brightstar.trpgfate.service.exception.InvalidGameStateException;
@@ -97,6 +99,8 @@ public class GameServiceImpl implements GameService {
 
     @Autowired
     private GameDAO gameDAO;
+    @Autowired
+    private GamingRecordDAO gamingRecordDAO;
     @Autowired
     private GamePlayerDAO gamePlayerDAO;
     @Autowired
@@ -188,6 +192,21 @@ public class GameServiceImpl implements GameService {
         com.brightstar.trpgfate.dao.po.Game po = gameDAO.getByGUID(UUIDHelper.toBytes(game.getUuid()));
         po.setTitle(game.getTitle());
         gameDAO.updateInfo(po);
+    }
+
+    @Override
+    public List<GamingRecord> getGamingRecords(Game game) {
+        ArrayList<GamingRecord> ret = new ArrayList<>();
+        List<com.brightstar.trpgfate.dao.po.GamingRecord> poList = gamingRecordDAO.getGamingRecords(UUIDHelper.toBytes(game.getUuid()));
+        for (com.brightstar.trpgfate.dao.po.GamingRecord po : poList) {
+            GamingRecord gamingRecord = new GamingRecord();
+            gamingRecord.setGameUuid(game.getUuid());
+            gamingRecord.setGameTableUuid(UUIDHelper.fromBytes(po.getInstanceGuid()));
+            gamingRecord.setBeginTime(DatetimeConverter.sqlTimestamp2Calendar(po.getBeginTime()));
+            gamingRecord.setEndTime(DatetimeConverter.sqlTimestamp2Calendar(po.getEndTime()));
+            ret.add(gamingRecord);
+        }
+        return ret;
     }
 
     @Override

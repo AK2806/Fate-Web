@@ -1,6 +1,7 @@
 package com.brightstar.trpgfate.service;
 
 import com.brightstar.trpgfate.service.dto.Game;
+import com.brightstar.trpgfate.service.dto.GamingRecord;
 import com.brightstar.trpgfate.service.dto.User;
 import com.brightstar.trpgfate.service.dto.character.Character;
 import com.brightstar.trpgfate.service.exception.InvalidGameStateException;
@@ -17,6 +18,7 @@ public interface GameService {
     void invalidGame(Game game);
     void updateGameStatus(Game game) throws InvalidGameStateException;
     void updateGameInfo(Game game);
+    List<GamingRecord> getGamingRecords(Game game);
 
     void addPlayer(Game game, User player) throws UserConflictException, InvalidGameStateException;
     void setPlayerCharacter(Game game, User player, Character character) throws UserDoesntExistException, InvalidGameStateException;
