@@ -1,16 +1,16 @@
 package com.brightstar.trpgfate.service.dto;
 
-import com.alibaba.fastjson.JSONObject;
-
+import java.util.Calendar;
 import java.util.UUID;
 
 public final class Mod {
     private UUID uuid;
-    private UUID originModUuid;
     private int ownUserId;
+    private int authorUserId;
+    private Calendar createTime;
+    private Calendar lastPublishTime;
     private String title;
     private String description;
-    private JSONObject document;
 
     public UUID getUuid() {
         return uuid;
@@ -20,20 +20,36 @@ public final class Mod {
         this.uuid = uuid;
     }
 
-    public UUID getOriginModUuid() {
-        return originModUuid;
-    }
-
-    public void setOriginModUuid(UUID originModUuid) {
-        this.originModUuid = originModUuid;
-    }
-
     public int getOwnUserId() {
         return ownUserId;
     }
 
     public void setOwnUserId(int ownUserId) {
         this.ownUserId = ownUserId;
+    }
+
+    public int getAuthorUserId() {
+        return authorUserId;
+    }
+
+    public void setAuthorUserId(int authorUserId) {
+        this.authorUserId = authorUserId;
+    }
+
+    public Calendar getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(Calendar createTime) {
+        this.createTime = createTime;
+    }
+
+    public Calendar getLastPublishTime() {
+        return lastPublishTime;
+    }
+
+    public void setLastPublishTime(Calendar lastPublishTime) {
+        this.lastPublishTime = lastPublishTime;
     }
 
     public String getTitle() {
@@ -52,11 +68,7 @@ public final class Mod {
         this.description = description;
     }
 
-    public JSONObject getDocument() {
-        return document;
-    }
-
-    public void setDocument(JSONObject document) {
-        this.document = document;
+    private boolean isPublished() {
+        return lastPublishTime != null;
     }
 }
