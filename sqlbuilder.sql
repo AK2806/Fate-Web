@@ -32,11 +32,12 @@ CREATE TABLE IF NOT EXISTS `account` (
 -- 数据导出被取消选择。
 -- 导出  表 trpgfate.announcement 结构
 CREATE TABLE IF NOT EXISTS `announcement` (
-  `idx` int(11) NOT NULL AUTO_INCREMENT,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `title` varchar(50) NOT NULL,
   `content` text NOT NULL,
-  PRIMARY KEY (`idx`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
 
 -- 数据导出被取消选择。
 -- 导出  表 trpgfate.character 结构
@@ -54,8 +55,9 @@ CREATE TABLE IF NOT EXISTS `follower` (
   `user_id` int(11) NOT NULL,
   `follower_id` int(11) NOT NULL,
   `time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  KEY `FK_follower_user` (`user_id`),
+  PRIMARY KEY (`user_id`,`follower_id`),
   KEY `FK_follower_user_2` (`follower_id`),
+  KEY `Search_time` (`user_id`,`time`),
   CONSTRAINT `FK_follower_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`),
   CONSTRAINT `FK_follower_user_2` FOREIGN KEY (`follower_id`) REFERENCES `user` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -64,12 +66,16 @@ CREATE TABLE IF NOT EXISTS `follower` (
 -- 导出  表 trpgfate.game 结构
 CREATE TABLE IF NOT EXISTS `game` (
   `guid` binary(16) NOT NULL,
-  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `status` tinyint(3) unsigned zerofill NOT NULL,
-  `mod` binary(16) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `mod_guid` binary(16) DEFAULT NULL,
+  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `status` tinyint(3) unsigned zerofill NOT NULL DEFAULT '000',
+  `title` varchar(50) NOT NULL,
   PRIMARY KEY (`guid`),
-  KEY `FK_game_mod` (`mod`),
-  CONSTRAINT `FK_game_mod` FOREIGN KEY (`mod`) REFERENCES `mod` (`guid`)
+  KEY `FK_game_mod` (`mod_guid`),
+  KEY `FK_game_user` (`user_id`),
+  CONSTRAINT `FK_game_mod` FOREIGN KEY (`mod_guid`) REFERENCES `mod` (`guid`),
+  CONSTRAINT `FK_game_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- 数据导出被取消选择。
@@ -77,25 +83,23 @@ CREATE TABLE IF NOT EXISTS `game` (
 CREATE TABLE IF NOT EXISTS `game_player` (
   `game_guid` binary(16) NOT NULL,
   `user_id` int(11) NOT NULL,
-  `role` tinyint(3) unsigned NOT NULL,
   `character_guid` binary(16) DEFAULT NULL,
   PRIMARY KEY (`game_guid`,`user_id`),
   KEY `FK_game_player_record_user` (`user_id`),
-  CONSTRAINT `FK_game_player_record_game` FOREIGN KEY (`game_guid`) REFERENCES `game` (`guid`),
+  CONSTRAINT `FK_game_player_record_game` FOREIGN KEY (`game_guid`) REFERENCES `game` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `FK_game_player_record_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- 数据导出被取消选择。
 -- 导出  表 trpgfate.gaming_record 结构
 CREATE TABLE IF NOT EXISTS `gaming_record` (
-  `user_id` int(11) NOT NULL,
   `game_guid` binary(16) NOT NULL,
-  `begin_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `instance_guid` binary(16) NOT NULL,
+  `begin_time` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
   `end_time` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
-  KEY `FK_gaming_record_game` (`game_guid`),
-  KEY `FK_gaming_record_user` (`user_id`),
-  CONSTRAINT `FK_gaming_record_game` FOREIGN KEY (`game_guid`) REFERENCES `game` (`guid`),
-  CONSTRAINT `FK_gaming_record_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`)
+  PRIMARY KEY (`game_guid`,`instance_guid`),
+  KEY `begin_time` (`begin_time`),
+  CONSTRAINT `FK_gaming_record_game` FOREIGN KEY (`game_guid`) REFERENCES `game` (`guid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- 数据导出被取消选择。
@@ -103,11 +107,15 @@ CREATE TABLE IF NOT EXISTS `gaming_record` (
 CREATE TABLE IF NOT EXISTS `mod` (
   `guid` binary(16) NOT NULL,
   `user_id` int(11) NOT NULL,
-  `origin` binary(16) DEFAULT NULL,
+  `author_id` int(11) DEFAULT NULL,
+  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `last_publish_time` timestamp NULL DEFAULT NULL,
+  `title` varchar(50) NOT NULL,
+  `description` text NOT NULL,
   PRIMARY KEY (`guid`),
   KEY `FK_mod_user` (`user_id`),
-  KEY `FK_mod_mod` (`origin`),
-  CONSTRAINT `FK_mod_mod` FOREIGN KEY (`origin`) REFERENCES `mod` (`guid`),
+  KEY `FK_mod_user_2` (`author_id`),
+  CONSTRAINT `FK_mod_user_2` FOREIGN KEY (`author_id`) REFERENCES `user` (`id`),
   CONSTRAINT `FK_mod_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -115,9 +123,9 @@ CREATE TABLE IF NOT EXISTS `mod` (
 -- 导出  表 trpgfate.notification 结构
 CREATE TABLE IF NOT EXISTS `notification` (
   `user_id` int(11) NOT NULL,
-  `last_time_read` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `last_idx_read` int(11) NOT NULL DEFAULT '0',
-  KEY `FK_notification_user` (`user_id`),
+  `last_view_follower_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_read_announcement_id` int(11) NOT NULL,
+  PRIMARY KEY (`user_id`),
   CONSTRAINT `FK_notification_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -127,23 +135,12 @@ CREATE TABLE IF NOT EXISTS `user` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `passwd_hash` binary(40) NOT NULL,
   `role` tinyint(3) unsigned zerofill NOT NULL,
-  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `active` bit(1) NOT NULL DEFAULT b'1',
   `email` varchar(50) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `email` (`email`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
-
--- 数据导出被取消选择。
--- 导出  表 trpgfate.user_action_record 结构
-CREATE TABLE IF NOT EXISTS `user_action_record` (
-  `user_id` int(11) NOT NULL,
-  `time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `type` tinyint(3) unsigned NOT NULL,
-  `content` varchar(300) NOT NULL,
-  KEY `FK_user_action_record_user` (`user_id`),
-  CONSTRAINT `FK_user_action_record_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8;
 
 -- 数据导出被取消选择。
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
